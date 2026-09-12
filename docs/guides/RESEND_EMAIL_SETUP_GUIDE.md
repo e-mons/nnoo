@@ -28,6 +28,51 @@ By connecting **Resend** directly to Supabase as your **Custom SMTP Provider**, 
 
 ---
 
+## 🔄 Exactly How NNOO Uses Resend (Screen-by-Screen Flow)
+
+Here is the exact journey in the codebase so you know what happens behind the scenes:
+
+```text
+[User on /sign-up]
+       │
+       ▼ (Clicks "Create Account")
+[Next.js Server Action: signUpAction]
+       │
+       ▼ (Calls Supabase Auth API)
+[Supabase Backend: hoorlxgtnamwdxszsbwt]
+       │
+       ▼ (Connects via SMTP to smtp.resend.com)
+[Resend Email Server]
+       │
+       ▼ (Delivers email in < 2 seconds)
+[User's Inbox: Receives 6-Digit Code & Button]
+       │
+   ┌───┴─────────────────────────────────────────┐
+   ▼                                             ▼
+[Option 1: Types 6-digit code]            [Option 2: Clicks green button]
+   │                                             │
+   ▼                                             ▼
+[Screen: /verify-email]                   [Route: /auth/callback?code=...]
+   │                                             │
+   ▼ (Calls verifyEmailOtpAction)                ▼ (Exchanges code for session)
+   └───────────────────────┬─────────────────────┘
+                           │
+                           ▼
+                  [Screen: /onboarding]
+                  (Workspace is Activated!)
+```
+
+### The 2 Authentication Email Flows in NNOO:
+1. **Account Verification (Sign-Up):**
+   - User signs up on `/sign-up`.
+   - NNOO redirects them to `/verify-email?email=...` where they see 6 empty boxes for the code.
+   - Resend delivers the email containing the 6-digit code (`{{ .Token }}`) and a one-click confirmation button (`{{ .ConfirmationURL }}`).
+   - Either entering the 6 digits OR clicking the button instantly activates the account and moves the user to `/onboarding`!
+2. **Password Reset (Forgot Password):**
+   - User goes to `/forgot-password` and types their email.
+   - Resend delivers the password reset email.
+   - Clicking the link takes the user to `/auth/callback?next=/reset-password` and opens `/reset-password` where they set a new password.
+
 ## 🛑 The #1 Rule to Know Before You Start (Avoid 99% of Errors!)
 
 Before doing anything, understand how Resend works in **Testing vs. Live Production**:
@@ -175,7 +220,51 @@ Let's make sure the email template looks modern and clearly presents the 6-digit
 ```
 
 5. Click **"Save changes"** at the bottom right.
-6. *(Optional but Recommended)* Click on **"Reset password"** template and do the exact same thing so password recovery emails also look stunning and include `{{ .Token }}`.
+
+---
+
+### Step 4b: Configure "Reset Password" Template (Recovery Email)
+
+Let's also make sure password reset emails look identical and contain both the 6-digit code and direct reset link:
+
+1. Still in [Supabase Templates](https://supabase.com/dashboard/project/hoorlxgtnamwdxszsbwt/auth/templates), click on **"Reset Password"**.
+2. In the **Subject** field, type:
+   ```text
+   Reset Your NNOO Password
+   ```
+3. In the **Message Body (HTML)** box, select all, delete, and paste this:
+
+```html
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #0A0D14; color: #FFFFFF; border-radius: 12px; border: 1px solid #1F2937;">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h1 style="color: #B8F25C; font-size: 28px; margin: 0; letter-spacing: 2px;">NNOO</h1>
+    <p style="color: #9CA3AF; font-size: 14px; margin-top: 4px;">Africa's AI Business Operating System</p>
+  </div>
+
+  <div style="background-color: #111827; padding: 24px; border-radius: 8px; border: 1px solid #374151; text-align: center;">
+    <h2 style="color: #FFFFFF; font-size: 20px; margin-top: 0;">Reset Your Password</h2>
+    <p style="color: #D1D5DB; font-size: 15px; line-height: 1.5;">
+      We received a request to reset your NNOO account password. Use this code or click the button below:
+    </p>
+    
+    <div style="background-color: #1F2937; display: inline-block; padding: 12px 28px; border-radius: 8px; margin: 20px 0; border: 1px solid #4B5563;">
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #B8F25C; font-family: monospace;">{{ .Token }}</span>
+    </div>
+
+    <p style="color: #9CA3AF; font-size: 13px;">This code will expire in 1 hour.</p>
+
+    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #374151;">
+      <a href="{{ .ConfirmationURL }}" style="display: inline-block; background-color: #B8F25C; color: #0A0D14; font-weight: bold; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 14px;">Reset My Password</a>
+    </div>
+  </div>
+
+  <p style="color: #6B7280; font-size: 12px; text-align: center; margin-top: 24px;">
+    If you did not request a password reset, you can safely ignore this email.
+  </p>
+</div>
+```
+
+4. Click the green **"Save changes"** button.
 
 ---
 
