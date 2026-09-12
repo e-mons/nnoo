@@ -1,0 +1,80 @@
+{
+  "expo": {
+    "name": "NNOO",
+    "slug": "nnoo-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0D14"
+    },
+    "ios": {
+      "bundleIdentifier": "com.nnoo.mobile",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      },
+      "associatedDomains": [
+        "applinks:nnoo.app"
+      ]
+    },
+    "android": {
+      "package": "com.nnoo.mobile",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#0A0D14"
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "nnoo.app",
+              "pathPrefix": "/passport"
+            },
+            {
+              "scheme": "https",
+              "host": "nnoo.app",
+              "pathPrefix": "/app"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "nnoo",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#B8F25C",
+          "defaultChannel": "nnoo-default"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8b92b6a2-6f17-48f5-a08c-9a4f65c19e42"
+      }
+    }
+  }
+}

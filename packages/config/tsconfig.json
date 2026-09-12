@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@nnoo/validation": ["../validation/index.ts"],
+      "@nnoo/contracts": ["../contracts/index.ts"],
+      "zod": ["../../node_modules/zod", "../../apps/web/node_modules/zod"]
+    }
+  }
+}

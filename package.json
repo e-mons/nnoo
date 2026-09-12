@@ -1,0 +1,31 @@
+{
+  "name": "nnoo-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:mobile": "turbo run start --filter=mobile",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check": "pnpm run typecheck && pnpm run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml,yml}\""
+  },
+  "devDependencies": {
+    "@react-native/debugger-frontend": "^0.87.0",
+    "prettier": "^3.3.3",
+    "supabase": "^2.111.0",
+    "tsx": "^4.23.12",
+    "turbo": "^2.0.12"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "packageManager": "pnpm@11.0.0",
+  "dependencies": {
+    "metro-runtime": "^0.87.0"
+  }
+}
