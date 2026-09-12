@@ -251,6 +251,7 @@ Want your website to look completely professional (like `https://nnoo.app` or `h
 
 | What Went Wrong? | Why It Happened | How to Fix It in 10 Seconds |
 |---|---|---|
+| **Error: "No Next.js version detected"** | Root directory was missing Next.js devDependency. | **Fix:** Resolved in codebase. Ensure Vercel **Root Directory** is `./` (not `apps/web`), push latest commit, and click **Redeploy**. |
 | **Build Error: "Cannot find package @nnoo/contracts"** | You set the Root Directory in Vercel to `apps/web`. | **Fix:** In Vercel Project Settings $\to$ **General** $\to$ **Root Directory**, reset it to `./` (or leave it blank), then redeploy. |
 | **Error: "Production environment cannot use a Paystack test key"** | You have `NNOO_ENV=production` but pasted a `sk_test_...` key. | **Fix:** In Vercel $\to$ **Settings** $\to$ **Environment Variables**, change `NNOO_ENV` from `production` to `preview`. |
 | **Login Redirects to `localhost:3000`** | Supabase Auth still has localhost as its default redirect. | **Fix:** Go to [Supabase URL Configuration](https://supabase.com/dashboard/project/hoorlxgtnamwdxszsbwt/auth/url-configuration) and set **Site URL** and **Redirect URLs** to your Vercel address. |

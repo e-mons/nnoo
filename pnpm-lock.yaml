@@ -15,9 +15,18 @@ importers:
       '@react-native/debugger-frontend':
         specifier: ^0.87.0
         version: 0.87.0
+      next:
+        specifier: 16.3.0
+        version: 16.3.0(@opentelemetry/api@1.9.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.2.8))(react@19.2.8)
       prettier:
         specifier: ^3.3.3
         version: 3.9.6
+      react:
+        specifier: 19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.1.0(react@19.2.8)
       supabase:
         specifier: ^2.111.0
         version: 2.111.0
@@ -12155,6 +12164,33 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
+  next@16.3.0(@opentelemetry/api@1.9.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.2.8))(react@19.2.8):
+    dependencies:
+      '@next/env': 16.3.0
+      '@swc/helpers': 0.5.15
+      baseline-browser-mapping: 2.11.12
+      caniuse-lite: 1.0.30001807
+      postcss: 8.5.23
+      react: 19.2.8
+      react-dom: 19.1.0(react@19.2.8)
+      styled-jsx: 5.1.6(@babel/core@7.29.7)(react@19.2.8)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 16.3.0
+      '@next/swc-darwin-x64': 16.3.0
+      '@next/swc-linux-arm64-gnu': 16.3.0
+      '@next/swc-linux-arm64-musl': 16.3.0
+      '@next/swc-linux-x64-gnu': 16.3.0
+      '@next/swc-linux-x64-musl': 16.3.0
+      '@next/swc-win32-arm64-msvc': 16.3.0
+      '@next/swc-win32-x64-msvc': 16.3.0
+      '@opentelemetry/api': 1.9.1
+      babel-plugin-react-compiler: 1.0.0
+      sharp: 0.35.3(@types/node@20.19.43)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@types/node'
+      - babel-plugin-macros
+
   node-domexception@1.0.0: {}
 
   node-exports-info@1.6.2:
@@ -12502,6 +12538,11 @@ snapshots:
   react-dom@19.1.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+      scheduler: 0.26.0
+
+  react-dom@19.1.0(react@19.2.8):
+    dependencies:
+      react: 19.2.8
       scheduler: 0.26.0
 
   react-dom@19.2.8(react@19.2.8):
