@@ -78,3 +78,14 @@ body {
   background: rgba(184, 242, 92, 0.35);
 }
 
+/* Global select dropdown contrast enhancement */
+select option {
+  background-color: #0A1C16;
+  color: #FFFFFF;
+}
+
+select optgroup {
+  background-color: #0A1C16;
+  color: #9CA3AF;
+}
+

@@ -42,15 +42,16 @@ export function PeriodSelector() {
   const currentPeriod = searchParams.get('period') || 'this_month';
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center">
       <select 
         value={currentPeriod}
         onChange={(e) => handlePeriodChange(e.target.value)}
-        className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+        className="bg-[#143628] hover:bg-[#1A4533] border border-white/20 text-white font-medium rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#B8F25C]/50 focus:border-[#B8F25C] transition cursor-pointer [&>option]:bg-[#0A1C16] [&>option]:text-white"
+        aria-label="Select performance period"
       >
-        <option value="this_month">This Month</option>
-        <option value="last_month">Last Month</option>
-        <option value="this_year">This Year</option>
+        <option value="this_month" className="bg-[#0A1C16] text-white py-1">This Month</option>
+        <option value="last_month" className="bg-[#0A1C16] text-white py-1">Last Month</option>
+        <option value="this_year" className="bg-[#0A1C16] text-white py-1">This Year</option>
       </select>
     </div>
   );
