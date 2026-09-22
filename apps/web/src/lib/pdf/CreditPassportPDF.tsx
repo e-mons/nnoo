@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet } from './react-pdf-wrapper';
 import type { CreditPassportSnapshot } from '@nnoo/contracts';
 
 const styles = StyleSheet.create({
