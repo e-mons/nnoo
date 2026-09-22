@@ -102,10 +102,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 16,
+    paddingBottom: 14,
   },
-  backButton: { marginRight: 14, padding: 6 },
+  backButton: { marginRight: 14, padding: 8, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12 },
   headerTitle: { fontSize: 24, fontWeight: '900', color: '#FFF', letterSpacing: -0.5 },
   subtext: { color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 2 },
 

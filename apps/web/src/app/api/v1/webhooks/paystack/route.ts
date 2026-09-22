@@ -38,11 +38,13 @@ export async function POST(req: NextRequest) {
     const eventDedupeKey = data.id ? data.id.toString() : hash.substring(0, 32);
 
     // 1. Idempotency Check
+    const providerEnvironment = process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_live_') ? 'live' : 'test';
+
     const { data: existingEvent, error: existingError } = await supabase
       .from('billing_webhook_events')
       .select('id')
       .eq('provider', 'paystack')
-      .eq('provider_environment', 'test') // Hardcoded for this feature scope, production uses dynamic env
+      .eq('provider_environment', providerEnvironment)
       .eq('event_dedupe_key', eventDedupeKey)
       .maybeSingle();
 
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
       .from('billing_webhook_events')
       .insert({
         provider: 'paystack',
-        provider_environment: 'test',
+        provider_environment: providerEnvironment,
         event_type: eventType,
         event_dedupe_key: eventDedupeKey,
         provider_reference: data.reference,

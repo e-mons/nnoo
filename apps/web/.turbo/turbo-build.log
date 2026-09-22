@@ -1,19 +1,4 @@
 $ next build
 ▲ Next.js 16.3.0 (Turbopack)
 - Environments: .env.local
-✓ Running next.config.ts took 44ms
-
-  Creating an optimized production build ...
-✓ Compiled successfully in 6.1s
-  Running TypeScript ...
-src/server/ai/assistant/assistant-service.ts(736,7): error TS2322: Type '{ actionKeys: ("OPEN_SALES_REPORT" | "OPEN_EXPENSE_REPORT" | "OPEN_PROFITABILITY_REPORT" | "OPEN_RECEIVABLES" | "OPEN_PAYABLES" | "OPEN_INVENTORY" | "OPEN_LOW_STOCK" | "OPEN_OVERDUE_INVOICES" | "OPEN_INVOICES" | "OPEN_AI_BOOKKEEPER" | "RECORD_EXPENSE" | "CREATE_SALE")[]; ... 8 more ...; headline?: string | ... 1 mor...' is not assignable to type 'StructuredAskNnooResponse'.
-  Types of property 'schemaVersion' are incompatible.
-    Type 'string | undefined' is not assignable to type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-src/server/ai/insights/insight-service.ts(299,7): error TS2322: Type '{ headline: string; overview: string; highlightSignalKeys: ("NET_SALES_CHANGE" | "REFUNDS_PRESENT" | "COGS_CHANGE" | "GROSS_PROFIT_CHANGE" | "OPERATING_EXPENSE_CHANGE" | "OPERATING_RESULT_CHANGE" | ... 5 more ... | "INVENTORY_POSITION")[]; attentionSignalKeys: ("NET_SALES_CHANGE" | ... 10 more ... | "INVENTORY_POSIT...' is not assignable to type 'StructuredBusinessSummaryResponse'.
-  Types of property 'schemaVersion' are incompatible.
-    Type 'string | undefined' is not assignable to type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-Failed to type check.
-
- ELIFECYCLE  Command failed with exit code 1.
+Terminate batch job (Y/N)? 

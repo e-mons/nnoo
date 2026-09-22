@@ -6,111 +6,195 @@ import { useBusiness } from '../../../contexts/BusinessContext';
 import { useAuth } from '../../../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
+
+interface MenuItem {
+  title: string;
+  description: string;
+  route: string;
+  icon: keyof typeof Feather.glyphMap;
+  color: string;
+}
 
 export default function MoreIndexScreen() {
   const router = useRouter();
   const { activeBusiness } = useBusiness();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
-  const operationsMenu = [
-    { title: 'Customers', description: 'Manage customer details', route: '/(app)/more/customers', icon: 'users', color: '#3b82f6' },
-    { title: 'Suppliers', description: 'Manage suppliers and contacts', route: '/(app)/more/suppliers', icon: 'truck', color: '#f59e0b' },
-    { title: 'Products & Services', description: 'Manage your product catalogue', route: '/(app)/more/products', icon: 'package', color: '#10b981' },
-    { title: 'Expenses', description: 'Record and track expenses', route: '/(app)/more/expenses', icon: 'credit-card', color: '#ef4444' },
+  const directoryMenu: MenuItem[] = [
+    {
+      title: 'Contacts & Debt Directory',
+      description: 'Customers, suppliers, and who owes you money',
+      route: '/(app)/more/contacts',
+      icon: 'users',
+      color: '#79C0FF',
+    },
+    {
+      title: 'Official Payment Receipts',
+      description: 'Historical customer payment receipts & records',
+      route: '/(app)/more/receipts',
+      icon: 'check-circle',
+      color: '#B8F25C',
+    },
+    {
+      title: 'Business Performance Reports',
+      description: 'Profit, loss, sales summaries, and statements',
+      route: '/(app)/more/reports',
+      icon: 'bar-chart-2',
+      color: '#F0883E',
+    },
   ];
 
-  const intelligenceMenu = [
-    { title: 'Intelligence Hub', description: 'AI tools and smart business insights', route: '/(app)/intelligence', icon: 'cpu', color: '#B8F25C' },
-    { title: 'AI Bookkeeper', description: 'Classify and review transactions', route: '/(app)/intelligence/bookkeeper', icon: 'zap', color: '#f59e0b' },
-    { title: 'Smart Insights', description: 'Verified business summaries', route: '/(app)/intelligence/insights', icon: 'trending-up', color: '#3b82f6' },
-    { title: 'Ask NNOO', description: 'Chat with your business assistant', route: '/(app)/intelligence/assistant', icon: 'message-square', color: '#8b5cf6' },
-    { title: 'Business Health', description: 'Operational health score', route: '/(app)/intelligence/health', icon: 'activity', color: '#10b981' },
-    { title: 'Credit Passport', description: 'Verified business profile', route: '/(app)/intelligence/passport', icon: 'award', color: '#14b8a6' },
-    { title: 'Automations', description: 'Scheduled intelligence jobs', route: '/(app)/intelligence/automations', icon: 'clock', color: '#6366f1' },
-    { title: 'Notifications', description: 'Alerts and attention center', route: '/(app)/notifications', icon: 'bell', color: '#ec4899' },
-    { title: 'WhatsApp', description: 'WhatsApp business integration', route: '/(app)/settings/whatsapp', icon: 'phone', color: '#22c55e' },
+  const smartToolsMenu: MenuItem[] = [
+    {
+      title: 'AI Advisor & Intelligence Hub',
+      description: 'AI Bookkeeper, smart recommendations & health score',
+      route: '/(app)/intelligence',
+      icon: 'cpu',
+      color: '#B8F25C',
+    },
+    {
+      title: 'WhatsApp Business Integration',
+      description: 'Send invoices, receipts, and payment links via WhatsApp',
+      route: '/(app)/settings/whatsapp',
+      icon: 'message-circle',
+      color: '#22C55E',
+    },
+    {
+      title: 'Attention & Alert Center',
+      description: 'Pending payments, stock alerts, and urgent reminders',
+      route: '/(app)/notifications',
+      icon: 'bell',
+      color: '#EC4899',
+    },
   ];
 
-  const systemMenu = [
-    { title: 'Team & Roles', description: 'Manage members and access permissions', route: '/(app)/team', icon: 'shield', color: '#B8F25C' },
-    { title: 'Reports', description: 'Detailed financial statements', route: '/(app)/more/reports', icon: 'file-text', color: '#8b5cf6' },
-    { title: 'Billing', description: 'Manage SaaS subscription', route: '/(app)/more/billing', icon: 'dollar-sign', color: '#14b8a6' },
-    { title: 'Settings', description: 'Business and app settings', route: '/(app)/settings', icon: 'settings', color: '#64748b' },
+  const settingsMenu: MenuItem[] = [
+    {
+      title: 'Business Profile & Details',
+      description: 'Store name, logo, contact phone, and receipt header',
+      route: '/(app)/settings',
+      icon: 'settings',
+      color: '#94A3B8',
+    },
+    {
+      title: 'Staff & Team Permissions',
+      description: 'Manage cashiers, managers, and access roles',
+      route: '/(app)/team',
+      icon: 'shield',
+      color: '#B8F25C',
+    },
+    {
+      title: 'Alerts & Notifications Settings',
+      description: 'Push notification sound, reminders, and daily digests',
+      route: '/(app)/settings/notifications',
+      icon: 'sliders',
+      color: '#79C0FF',
+    },
+    {
+      title: 'Subscription & Plan',
+      description: 'Current business tier, renewal, and usage limits',
+      route: '/(app)/more/billing',
+      icon: 'credit-card',
+      color: '#F59E0B',
+    },
   ];
 
-  const handlePress = (item: any) => {
-    if (item.route.includes('more/')) {
-      router.push(item.route as any);
-    } else {
-      router.push(item.route as any);
-    }
+  const handlePress = (route: string) => {
+    router.push(route as any);
   };
 
-  const renderMenuItem = (item: any, index: number, isLast: boolean) => (
-    <TouchableOpacity 
-      key={index} 
-      style={[styles.menuItem, isLast && styles.menuItemLast]} 
-      onPress={() => handlePress(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.menuLeft}>
-        <View style={[styles.iconBox, { backgroundColor: `${item.color}20` }]}>
-          <Feather name={item.icon as any} size={20} color={item.color} />
-        </View>
-        <View>
-          <Text style={styles.menuTitle}>{item.title}</Text>
-          <Text style={styles.menuDesc}>{item.description}</Text>
-        </View>
-      </View>
-      <Feather name="chevron-right" size={20} color="rgba(255,255,255,0.3)" />
-    </TouchableOpacity>
+  const renderSectionCard = (items: MenuItem[]) => (
+    <View style={styles.cardContainer}>
+      {items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        return (
+          <TouchableOpacity
+            key={item.route}
+            style={[styles.menuItem, isLast && styles.menuItemLast]}
+            onPress={() => handlePress(item.route)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuLeft}>
+              <View style={[styles.iconBox, { backgroundColor: `${item.color}1A` }]}>
+                <Feather name={item.icon} size={20} color={item.color} />
+              </View>
+              <View style={styles.menuTextContainer}>
+                <Text style={styles.menuTitle}>{item.title}</Text>
+                <Text style={styles.menuDesc}>{item.description}</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={18} color="rgba(255,255,255,0.3)" />
+          </TouchableOpacity>
+        );
+      })}
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0A1C16', '#122E24', '#0A1C16']}
-        style={StyleSheet.absoluteFillObject}
-      />
+      <LinearGradient colors={['#0A1C16', '#0F261E', '#0A1C16']} style={StyleSheet.absoluteFill} />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          
+          {/* Header */}
           <View style={styles.header}>
+            <View style={styles.tag}>
+              <Feather name="grid" size={12} color="#B8F25C" />
+              <Text style={styles.tagText}>Directory & Settings</Text>
+            </View>
             <Text style={styles.headerTitle}>More Options</Text>
-            <Text style={styles.subtext}>Manage {activeBusiness?.name} operations.</Text>
+            <Text style={styles.subtext}>Everything else for your daily operations</Text>
           </View>
 
+          {/* Active Business Mini Card */}
+          {activeBusiness && (
+            <View style={styles.businessProfileCard}>
+              <View style={styles.businessAvatar}>
+                <Text style={styles.businessAvatarText}>
+                  {activeBusiness.name?.charAt(0)?.toUpperCase() || 'B'}
+                </Text>
+              </View>
+              <View style={styles.businessMeta}>
+                <Text style={styles.businessName} numberOfLines={1}>
+                  {activeBusiness.name}
+                </Text>
+                <Text style={styles.businessEmail} numberOfLines={1}>
+                  {user?.email || 'Active Store'}
+                </Text>
+              </View>
+              <View style={styles.activePill}>
+                <View style={styles.activeDot} />
+                <Text style={styles.activePillText}>Online</Text>
+              </View>
+            </View>
+          )}
+
+          {/* Group 1: Business Directory */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Operations & Finance</Text>
-            <BlurView intensity={20} tint="light" style={styles.menuCard}>
-              {operationsMenu.map((item, index) => renderMenuItem(item, index, index === operationsMenu.length - 1))}
-            </BlurView>
+            <Text style={styles.sectionTitle}>Business Directory</Text>
+            {renderSectionCard(directoryMenu)}
           </View>
 
+          {/* Group 2: Smart Business Tools */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Intelligence & AI</Text>
-            <BlurView intensity={20} tint="light" style={styles.menuCard}>
-              {intelligenceMenu.map((item, index) => renderMenuItem(item, index, index === intelligenceMenu.length - 1))}
-            </BlurView>
+            <Text style={styles.sectionTitle}>Smart Tools & AI</Text>
+            {renderSectionCard(smartToolsMenu)}
           </View>
 
+          {/* Group 3: Settings & Team */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>System & Configuration</Text>
-            <BlurView intensity={20} tint="light" style={styles.menuCard}>
-              {systemMenu.map((item, index) => renderMenuItem(item, index, index === systemMenu.length - 1))}
-            </BlurView>
+            <Text style={styles.sectionTitle}>Settings & Organization</Text>
+            {renderSectionCard(settingsMenu)}
           </View>
 
-          <TouchableOpacity 
-            style={styles.signOutButton} 
+          {/* Sign Out Button */}
+          <TouchableOpacity
+            style={styles.signOutButton}
             onPress={signOut}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Feather name="log-out" color="#FF4D4D" size={20} />
-            <Text style={styles.signOutText}>Sign Out</Text>
+            <Feather name="log-out" color="#FF6B6B" size={18} />
+            <Text style={styles.signOutText}>Sign Out of Account</Text>
           </TouchableOpacity>
-
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -118,43 +202,140 @@ export default function MoreIndexScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  safeArea: { flex: 1 },
-  scrollContent: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 120 },
-  header: { 
-    marginBottom: 36,
-    marginTop: 16,
+  container: {
+    flex: 1,
+    backgroundColor: '#0A1C16',
   },
-  headerTitle: { fontSize: 32, fontWeight: '900', color: '#FFFFFF', marginBottom: 8, letterSpacing: -0.5 },
-  subtext: { fontSize: 16, color: 'rgba(255,255,255,0.6)' },
-  
+  safeArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 110,
+  },
+  header: {
+    marginBottom: 18,
+  },
+  tag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(184, 242, 92, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.25)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  tagText: {
+    color: '#B8F25C',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  headerTitle: {
+    fontSize: 26,
+    lineHeight: 32,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+  },
+  subtext: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: 'rgba(255, 255, 255, 0.58)',
+    marginTop: 3,
+  },
+  businessProfileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(20, 54, 40, 0.65)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 18,
+    padding: 12,
+    marginBottom: 16,
+    gap: 12,
+  },
+  businessAvatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: 'rgba(184, 242, 92, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  businessAvatarText: {
+    color: '#B8F25C',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  businessMeta: {
+    flex: 1,
+  },
+  businessName: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  businessEmail: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 11,
+    marginTop: 1,
+  },
+  activePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(184, 242, 92, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#B8F25C',
+  },
+  activePillText: {
+    color: '#B8F25C',
+    fontSize: 11,
+    fontWeight: '700',
+  },
   section: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 11,
+    fontWeight: '700',
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.4)',
-    letterSpacing: 1,
-    marginBottom: 12,
-    marginLeft: 16,
+    color: 'rgba(255, 255, 255, 0.45)',
+    letterSpacing: 0.8,
+    marginBottom: 6,
+    marginLeft: 4,
   },
-  menuCard: {
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+  cardContainer: {
+    borderRadius: 16,
+    backgroundColor: 'rgba(20, 54, 40, 0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    minHeight: 48,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
   },
   menuItemLast: {
     borderBottomWidth: 0,
@@ -162,33 +343,47 @@ const styles = StyleSheet.create({
   menuLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
+    flex: 1,
+    marginRight: 10,
   },
   iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 38,
+    height: 38,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 4 },
-  menuDesc: { fontSize: 13, color: 'rgba(255,255,255,0.5)' },
-  
+  menuTextContainer: {
+    flex: 1,
+  },
+  menuTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 1,
+  },
+  menuDesc: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.5)',
+    lineHeight: 15,
+  },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 18,
-    backgroundColor: 'rgba(255, 77, 77, 0.1)',
-    borderRadius: 20,
+    gap: 8,
+    minHeight: 48,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 107, 107, 0.08)',
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 77, 77, 0.3)',
-    marginTop: 8,
+    borderColor: 'rgba(255, 107, 107, 0.25)',
+    marginTop: 4,
   },
   signOutText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FF4D4D',
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FF6B6B',
   },
 });

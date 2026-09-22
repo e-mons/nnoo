@@ -1,4 +1,4 @@
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Slot, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -11,19 +11,20 @@ import { StatusBar } from 'expo-status-bar';
 const prefix = Linking.createURL('/');
 
 function RootLayoutNav() {
-  const { session, profile, isAdmin, isLoading: authLoading } = useAuth();
+  const { session, profile, isLoading: authLoading } = useAuth();
   const { memberships, hasSuspendedBusiness, isLoading: businessLoading } = useBusiness();
   const segments = useSegments();
   const router = useRouter();
+  const rootNavigationState = useRootNavigationState();
 
   const isLoading = authLoading || businessLoading;
 
   useEffect(() => {
+    if (!rootNavigationState?.key) return;
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
-    const inAdminGroup = segments[0] === '(admin)';
     const inAppGroup = segments[0] === '(app)';
     const authRoute = (segments as string[])[1];
     const isSuspendedPage = inAuthGroup && authRoute === 'suspended';
@@ -32,31 +33,28 @@ function RootLayoutNav() {
       // Redirect to the welcome page.
       router.replace('/(auth)/welcome');
     } else if (session) {
-      if (isAdmin && !inAdminGroup) {
-        // Platform Admins must not access the mobile business app
-        router.replace('/(admin)/');
-      } else if (!isAdmin) {
-        if (profile?.account_status === 'suspended' && !isSuspendedPage) {
-          router.replace('/(auth)/suspended');
-        } else if (profile?.account_status !== 'suspended') {
-          if (memberships.length === 0 && !inOnboardingGroup) {
-            if (hasSuspendedBusiness) {
-              router.replace('/(auth)/business-suspended');
-            } else {
-              // Redirect to onboarding
-              router.replace('/(onboarding)/');
-            }
-          } else if (memberships.length > 0 && !inAppGroup) {
-            // Redirect to app
-            router.replace('/(app)/');
+      if (profile?.account_status === 'suspended' && !isSuspendedPage) {
+        router.replace('/(auth)/suspended');
+      } else if (profile?.account_status !== 'suspended') {
+        if (memberships.length === 0 && !inOnboardingGroup) {
+          if (hasSuspendedBusiness) {
+            router.replace('/(auth)/business-suspended');
+          } else {
+            // Redirect to onboarding
+            router.replace('/(onboarding)/');
           }
+        } else if (memberships.length > 0 && !inAppGroup) {
+          // Redirect to app
+          router.replace('/(app)/');
         }
       }
     }
-  }, [session, profile, isAdmin, memberships, hasSuspendedBusiness, isLoading, segments, router]);
+  }, [session, profile, memberships, hasSuspendedBusiness, isLoading, segments, router, rootNavigationState?.key]);
 
   // Deep linking for password recovery or email verification or invitations
   useEffect(() => {
+    if (!rootNavigationState?.key) return;
+
     const handleDeepLink = (event: { url: string }) => {
       const data = Linking.parse(event.url);
       
@@ -95,7 +93,7 @@ function RootLayoutNav() {
     return () => {
       subscription.remove();
     };
-  }, [router]);
+  }, [router, rootNavigationState?.key]);
 
   if (isLoading) {
     return (

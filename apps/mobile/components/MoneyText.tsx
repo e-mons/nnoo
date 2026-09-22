@@ -4,12 +4,14 @@ import { Text, TextProps, StyleSheet } from 'react-native';
 interface MoneyTextProps extends TextProps {
   amountMinor: string | number;
   currencyCode?: string;
+  prefix?: string;
   style?: TextProps['style'];
 }
 
 export function MoneyText({ 
   amountMinor, 
   currencyCode = 'NGN', 
+  prefix,
   style, 
   numberOfLines = 1,
   adjustsFontSizeToFit = true,
@@ -33,7 +35,7 @@ export function MoneyText({
       adjustsFontSizeToFit={adjustsFontSizeToFit}
       {...props}
     >
-      {formatted}
+      {prefix ? `${prefix}${formatted}` : formatted}
     </Text>
   );
 }

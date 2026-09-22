@@ -53,6 +53,7 @@ Status values: `Planned`, `Specified`, `Approved`, `In Progress`, `Blocked`, `Do
 | T4-P11 | Full Production UAT & Go-Live Rehearsal | Tranche 4 | Done | `T4-P11-full-production-uat-go-live-rehearsal.md` published, 10 UAT journeys verified, exact $\Delta 0$ financial reconciliation & double-entry balance, incident drills & tabletops verified, `GO_LIVE_REHEARSAL.md` authored, 375 tests pass across 109 suites, `T4GAP-014` resolved |
 | T4-P12 | Documentation, Operations & Project Handover | Tranche 4 | Done | `T4-P12-documentation-operations-project-handover.md` published, master handover package authored across 45+ documentation files, `NNOO_PROJECT_HANDOVER.md` & `HANDOVER_PACKAGE_MANIFEST.md` published, `STACK_AND_VERSIONS.md` reconciled, `T4GAP-015`/`T4GAP-016` resolved, 375 tests pass |
 | T4-P13 | Final Tranche 4 & August Delivery Acceptance | Tranche 4 | Done | `TRANCHE_4_FINAL_ACCEPTANCE_REPORT.md`, `AUGUST_2026_DELIVERY_ACCEPTANCE_REPORT.md`, and `AUGUST_2026_PROJECT_CLOSEOUT.md` published, formal decisions `TRANCHE 4 ACCEPTED` and `AUGUST 2026 DELIVERY ACCEPTED` issued, 375 tests pass, Δ0 financial drift verified |
+| T4-MS01 | 100% Mobile Hub Parity & Admin Excision | Tranche 4 | Done | Purged mobile `(admin)` completely; synced Money Hub, Stock Hub, Contacts Hub, Receipts, Advisor Hub, and Settings; 0 TypeScript errors across web and mobile; monorepo check passes |
 
 A feature may be marked Done only when its approved acceptance report exists and all required gates pass.
 

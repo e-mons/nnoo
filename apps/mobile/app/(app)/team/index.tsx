@@ -13,11 +13,10 @@ import {
   Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useBusiness } from '../../../contexts/BusinessContext';
 import { supabase } from '../../../lib/supabase';
 import { BUSINESS_ROLES, ROLE_LABELS, BusinessRole } from '@nnoo/validation';
-import { useFocusEffect } from '@react-navigation/native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Badge } from '../../../components/Badge';
 

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useBusiness } from '../../contexts/BusinessContext';
-import { supabase } from '../../lib/supabase';
+import { useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { useBusiness } from '../../../contexts/BusinessContext';
+import { supabase } from '../../../lib/supabase';
 import { INDUSTRY_OPTIONS } from '@nnoo/validation';
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const { activeBusiness, refreshMemberships } = useBusiness();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -123,6 +126,82 @@ export default function SettingsScreen() {
               {loading ? 'Saving...' : 'Save Changes'}
             </Text>
           </TouchableOpacity>
+
+          {/* Business Preferences & Integrations */}
+          <View style={styles.sectionBlock}>
+            <Text style={styles.sectionHeaderTitle}>Preferences & Integrations</Text>
+            <View style={styles.prefCard}>
+              <TouchableOpacity
+                style={styles.prefRow}
+                onPress={() => router.push('/(app)/settings/notifications' as any)}
+              >
+                <View style={styles.prefLeft}>
+                  <View style={[styles.prefIconBox, { backgroundColor: 'rgba(244, 63, 94, 0.15)' }]}>
+                    <Feather name="bell" size={16} color="#F43F5E" />
+                  </View>
+                  <View>
+                    <Text style={styles.prefTitle}>Notification Settings</Text>
+                    <Text style={styles.prefDesc}>Configure push & operational alerts</Text>
+                  </View>
+                </View>
+                <Feather name="chevron-right" size={16} color="rgba(255,255,255,0.3)" />
+              </TouchableOpacity>
+
+              <View style={styles.prefDivider} />
+
+              <TouchableOpacity
+                style={styles.prefRow}
+                onPress={() => router.push('/(app)/settings/automations' as any)}
+              >
+                <View style={styles.prefLeft}>
+                  <View style={[styles.prefIconBox, { backgroundColor: 'rgba(99, 102, 241, 0.15)' }]}>
+                    <Feather name="clock" size={16} color="#6366F1" />
+                  </View>
+                  <View>
+                    <Text style={styles.prefTitle}>Automations & Schedules</Text>
+                    <Text style={styles.prefDesc}>Background intelligence jobs & rules</Text>
+                  </View>
+                </View>
+                <Feather name="chevron-right" size={16} color="rgba(255,255,255,0.3)" />
+              </TouchableOpacity>
+
+              <View style={styles.prefDivider} />
+
+              <TouchableOpacity
+                style={styles.prefRow}
+                onPress={() => router.push('/(app)/settings/whatsapp' as any)}
+              >
+                <View style={styles.prefLeft}>
+                  <View style={[styles.prefIconBox, { backgroundColor: 'rgba(34, 197, 94, 0.15)' }]}>
+                    <Feather name="phone" size={16} color="#22C55E" />
+                  </View>
+                  <View>
+                    <Text style={styles.prefTitle}>WhatsApp Integration</Text>
+                    <Text style={styles.prefDesc}>Connect your phone for instant digests</Text>
+                  </View>
+                </View>
+                <Feather name="chevron-right" size={16} color="rgba(255,255,255,0.3)" />
+              </TouchableOpacity>
+
+              <View style={styles.prefDivider} />
+
+              <TouchableOpacity
+                style={styles.prefRow}
+                onPress={() => router.push('/(app)/team' as any)}
+              >
+                <View style={styles.prefLeft}>
+                  <View style={[styles.prefIconBox, { backgroundColor: 'rgba(184, 242, 92, 0.15)' }]}>
+                    <Feather name="shield" size={16} color="#B8F25C" />
+                  </View>
+                  <View>
+                    <Text style={styles.prefTitle}>Team & Roles</Text>
+                    <Text style={styles.prefDesc}>Manage store staff and managers</Text>
+                  </View>
+                </View>
+                <Feather name="chevron-right" size={16} color="rgba(255,255,255,0.3)" />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <View style={styles.dangerZone}>
             <Text style={styles.dangerTitle}>Account & Privacy</Text>
@@ -268,5 +347,54 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontSize: 14,
     fontWeight: '600',
+  },
+  sectionBlock: {
+    marginTop: 28,
+  },
+  sectionHeaderTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 10,
+  },
+  prefCard: {
+    backgroundColor: 'rgba(20, 54, 40, 0.45)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+  },
+  prefRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+  prefLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  prefIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  prefTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  prefDesc: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: 1,
+  },
+  prefDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
   },
 });

@@ -44,14 +44,16 @@ Status: **Authoritative Workspace Reference**
 
 | Component | Version | Purpose |
 |---|---|---|
-| **Framework / SDK** | Expo SDK `~54.0.0` | React Native universal mobile toolchain |
-| **Routing** | Expo Router `~6.0.24` | File-based navigation (`app/(auth)`, `app/(app)`) |
-| **UI Library** | React `19.1.0` / React Native `0.81.5` | Native mobile rendering engine |
+| **Framework / SDK** | Expo SDK `~57.0.24` | React Native universal mobile toolchain |
+| **Routing** | Expo Router `~57.0.22` | File-based navigation (`app/(auth)`, `app/(app)`) |
+| **UI Library** | React `19.2.3` / React Native `0.86.3` | Native mobile rendering engine |
 | **Storage** | `@react-native-async-storage/async-storage: 2.2.0` | Non-sensitive local preferences cache |
-| **Secure Storage** | `expo-secure-store: ~15.0.8` | Encrypted session tokens and credentials |
-| **Notifications** | `expo-notifications: ~0.32.17` | Device registration and push reception |
-| **Deep Linking** | `expo-linking: ~8.0.12` | Universal links & Android App Links (`https://nnoo.app`) |
-| **Crypto** | `expo-crypto: ~15.0.0` | Native cryptographic helpers |
+| **Secure Storage** | `expo-secure-store: ~57.0.4` | Encrypted session tokens and credentials |
+| **Notifications** | `expo-notifications: ~57.0.20` | Device registration and push reception |
+| **Deep Linking** | `expo-linking: ~57.0.10` | Universal links & Android App Links (`https://nnoo.app`) |
+| **Crypto** | `expo-crypto: ~57.0.3` | Native cryptographic helpers |
+| **Splash Screen** | `expo-splash-screen: ~57.0.4` | Config plugin splash management |
+| **Media / Video** | `expo-video: ~57.0.4` | Native video background playback |
 | **Supabase Client** | `@supabase/supabase-js: ^2.112.2` | Direct mobile client using URL polyfill |
 | **Polyfills** | `react-native-url-polyfill: ^2.0.0` | URL standardization for React Native |
 

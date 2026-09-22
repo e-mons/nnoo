@@ -28,31 +28,32 @@ export default function AppLayout() {
           borderBottomWidth: 0,
         },
         headerTitleStyle: {
-          fontWeight: '700',
+          fontWeight: '800',
           color: '#FFFFFF',
+          fontSize: 18,
         },
         headerTintColor: '#FFFFFF',
         tabBarShowLabel: true,
         tabBarStyle: { 
-          backgroundColor: '#06130E',
+          backgroundColor: '#06140F',
           borderTopWidth: 1,
-          borderTopColor: 'rgba(184, 242, 92, 0.15)',
-          height: 60 + bottomInset,
+          borderTopColor: 'rgba(184, 242, 92, 0.12)',
+          height: 64 + bottomInset,
           paddingTop: 8,
           paddingBottom: bottomInset,
-          elevation: 20,
+          elevation: 24,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -6 },
-          shadowOpacity: 0.35,
-          shadowRadius: 14,
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.45,
+          shadowRadius: 18,
         },
         tabBarActiveTintColor: '#B8F25C',
-        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.45)',
+        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.42)',
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '700',
-          marginTop: 3,
-          letterSpacing: 0.2,
+          marginTop: 4,
+          letterSpacing: 0.3,
         },
         tabBarItemStyle: {
           justifyContent: 'center',
@@ -66,38 +67,36 @@ export default function AppLayout() {
           title: 'Dashboard',
           tabBarLabel: 'Home',
           headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name="home" size={22} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconBox, focused && styles.tabIconBoxActive]}>
+              <Feather name="home" size={19} color={focused ? '#B8F25C' : 'rgba(255, 255, 255, 0.45)'} />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="sales"
         options={{
-          title: 'Sales',
+          title: 'Money & Sales',
+          tabBarLabel: 'Money',
           headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name="trending-up" size={22} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconBox, focused && styles.tabIconBoxActive]}>
+              <Feather name="dollar-sign" size={19} color={focused ? '#B8F25C' : 'rgba(255, 255, 255, 0.45)'} />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="inventory"
         options={{
-          title: 'Inventory',
+          title: 'Items & Stock',
+          tabBarLabel: 'Stock',
           headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name="box" size={22} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="invoices"
-        options={{
-          title: 'Invoices',
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name="file-text" size={22} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconBox, focused && styles.tabIconBoxActive]}>
+              <Feather name="box" size={19} color={focused ? '#B8F25C' : 'rgba(255, 255, 255, 0.45)'} />
+            </View>
           ),
         }}
       />
@@ -105,10 +104,21 @@ export default function AppLayout() {
         name="more"
         options={{
           title: 'More',
+          tabBarLabel: 'More',
           headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name="grid" size={22} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconBox, focused && styles.tabIconBoxActive]}>
+              <Feather name="grid" size={19} color={focused ? '#B8F25C' : 'rgba(255, 255, 255, 0.45)'} />
+            </View>
           ),
+        }}
+      />
+      {/* Hide specific screens from Tab Bar (nested inside primary hubs) */}
+      <Tabs.Screen
+        name="invoices"
+        options={{
+          href: null,
+          headerShown: false,
         }}
       />
       {/* Hide specific screens from Tab Bar */}
@@ -137,7 +147,6 @@ export default function AppLayout() {
         }}
       />
     </Tabs>
-
   );
 }
 
@@ -151,5 +160,17 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
     fontSize: 16,
+  },
+  tabIconBox: {
+    width: 44,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabIconBoxActive: {
+    backgroundColor: 'rgba(184, 242, 92, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.3)',
   },
 });

@@ -81,10 +81,28 @@ export default function BookkeeperDetailScreen() {
 
       let payload: any = {};
       if (finalKind === 'OPERATING_EXPENSE') {
+        let expenseCatId = item.expense_category_candidate_id;
+        if (!expenseCatId) {
+          const { data: defaultCat } = await supabase
+            .from('expense_categories')
+            .select('id')
+            .eq('business_id', activeBusiness.id)
+            .eq('status', 'active')
+            .limit(1)
+            .maybeSingle();
+
+          if (!defaultCat?.id) {
+            Alert.alert('Category Required', 'Please configure an active expense category in settings before confirming this expense.');
+            setActing(false);
+            return;
+          }
+          expenseCatId = defaultCat.id;
+        }
+
         payload = {
           amountMinor: item.amount_minor || 0,
-          expenseCategoryId: item.expense_category_candidate_id || '00000000-0000-0000-0000-000000000000',
-          description: item.description,
+          expenseCategoryId: expenseCatId,
+          description: item.description || 'Expense',
           occurredAt: item.transaction_date || new Date().toISOString().split('T')[0],
           supplierId: item.supplier_candidate_id || undefined,
           payment: item.amount_minor ? {

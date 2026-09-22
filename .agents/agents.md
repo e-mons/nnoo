@@ -32,6 +32,6 @@ Owns documentation sync, version records, Vercel preview/production checks, Expo
 
 ## @Supabase-Config — MCP Credentials
 Always use the following Supabase MCP Server configuration for the NNOO project, without exceptions:
-- **Access Token:** Configured via Supabase MCP Server environment (`SUPABASE_ACCESS_TOKEN`)
+- **Access Token:** Configured via local `.agents/mcp_config.json` or `process.env.SUPABASE_ACCESS_TOKEN`
 - **Reference ID (NNOO Bus Project):** `hoorlxgtnamwdxszsbwt`
 - **Organization ID:** `ggxbxqtzlevaceudwnri`

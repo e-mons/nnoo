@@ -92,17 +92,71 @@ export default function IntelligenceHubScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Smart Tools', headerShown: true }} />
+      <Stack.Screen options={{ title: 'AI Advisor & Health', headerShown: true }} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Smart Tools</Text>
+          <View style={styles.tag}>
+            <Feather name="zap" size={12} color="#B8F25C" />
+            <Text style={styles.tagText}>AI Business Advisor & Intelligence</Text>
+          </View>
+          <Text style={styles.title}>AI Advisor & Health</Text>
           <Text style={styles.subtitle}>
-            AI-powered tools to understand, manage, and grow your business
+            Chat with Ask NNOO, review business health, and generate verified credit passports.
           </Text>
+
+          {/* Quick Suggestion Chips */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsContainer}
+          >
+            <TouchableOpacity
+              style={styles.chip}
+              onPress={() => router.push('/(app)/intelligence/assistant')}
+            >
+              <Text style={styles.chipText}>💬 &quot;How much profit this week?&quot;</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.chip, styles.chipPassport]}
+              onPress={() => router.push('/(app)/intelligence/passport')}
+            >
+              <Feather name="award" size={12} color="#79C0FF" />
+              <Text style={[styles.chipText, { color: '#79C0FF' }]}>Get Loan Passport</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.chip, styles.chipHealth]}
+              onPress={() => router.push('/(app)/intelligence/health')}
+            >
+              <Feather name="heart" size={12} color="#F25C8A" />
+              <Text style={[styles.chipText, { color: '#F25C8A' }]}>Health Score</Text>
+            </TouchableOpacity>
+          </ScrollView>
+
+          {/* Hero Plain-English Advisory Card */}
+          <View style={styles.heroCard}>
+            <View style={styles.heroCardHeader}>
+              <View style={styles.heroIconBox}>
+                <Feather name="shield" size={18} color="#B8F25C" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.heroTitleRow}>
+                  <Text style={styles.heroTitle}>Business Intelligence Center</Text>
+                  <View style={styles.activePill}>
+                    <Text style={styles.activePillText}>Active</Text>
+                  </View>
+                </View>
+                <Text style={styles.heroDesc}>
+                  NNOO continuously checks your sales, margins, expenses, and invoices to give you verified advice with zero guesswork.
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
 
         <View style={styles.grid}>
@@ -187,5 +241,102 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     right: 20,
+  },
+  tag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(184, 242, 92, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginBottom: 6,
+  },
+  tagText: {
+    color: '#B8F25C',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  chipsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  chipText: {
+    fontSize: 11,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  chipPassport: {
+    backgroundColor: 'rgba(121, 192, 255, 0.12)',
+    borderColor: 'rgba(121, 192, 255, 0.25)',
+  },
+  chipHealth: {
+    backgroundColor: 'rgba(242, 92, 138, 0.12)',
+    borderColor: 'rgba(242, 92, 138, 0.25)',
+  },
+  heroCard: {
+    backgroundColor: 'rgba(20, 54, 40, 0.65)',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.25)',
+    borderRadius: 16,
+    padding: 14,
+    marginTop: 4,
+  },
+  heroCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  heroIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(184, 242, 92, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  heroTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  activePill: {
+    backgroundColor: '#B8F25C',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 8,
+  },
+  activePillText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#0A1C16',
+  },
+  heroDesc: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.65)',
+    lineHeight: 16,
   },
 });

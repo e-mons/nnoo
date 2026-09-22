@@ -7,27 +7,62 @@
  * - Token rollover listener
  * - Foreground/background notification response handlers
  * - Safe deep-link navigation (re-auth on tap)
+ * - Safe Expo Go fallback (Expo Go on Android removed remote push notifications in SDK 53+)
  *
  * Zero Gemini credentials in mobile bundle.
  */
 
-import * as Notifications from 'expo-notifications';
+import type * as NotificationsType from 'expo-notifications';
 import * as Crypto from 'expo-crypto';
 import Constants from 'expo-constants';
 import { Platform, AppState, AppStateStatus } from 'react-native';
 import { router } from 'expo-router';
+import { isRunningInExpoGo } from 'expo';
 import { api } from './api';
 import { MOBILE_ACTION_ROUTE_MAP, type MobileActionKey } from '@nnoo/contracts';
 
-// ─── Foreground notification behavior ─────────────────────────────
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+/**
+ * Check if running inside Expo Go on Android.
+ * SDK 53+ removed remote push notifications from Expo Go on Android.
+ * Attempting to load or initialize expo-notifications on Android in Expo Go
+ * throws an uncaught error. A development build (EAS Build / prebuild) is required for remote push.
+ */
+function isAndroidExpoGo(): boolean {
+  if (Platform.OS !== 'android') return false;
+  try {
+    return isRunningInExpoGo() || Constants.appOwnership === 'expo' || (Constants.executionEnvironment as string) === 'storeClient';
+  } catch {
+    return false;
+  }
+}
+
+let cachedNotifications: typeof NotificationsType | null = null;
+let isHandlerSet = false;
+
+function getNotifications(): typeof NotificationsType | null {
+  if (Platform.OS === 'web' || isAndroidExpoGo()) {
+    return null;
+  }
+  if (cachedNotifications) return cachedNotifications;
+  try {
+    cachedNotifications = require('expo-notifications');
+    if (!isHandlerSet && cachedNotifications) {
+      cachedNotifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+        }),
+      });
+      isHandlerSet = true;
+    }
+    return cachedNotifications;
+  } catch (err) {
+    console.warn('[PushManager] expo-notifications unavailable in this runtime:', err);
+    return null;
+  }
+}
 
 let installationId: string | null = null;
 
@@ -54,7 +89,10 @@ export const MobilePushManager = {
    * Call this after user authentication, not on app launch.
    */
   async registerForPushNotifications(): Promise<string | null> {
-    if (Platform.OS === 'web') return null;
+    if (Platform.OS === 'web' || isAndroidExpoGo()) return null;
+
+    const Notifications = getNotifications();
+    if (!Notifications) return null;
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
@@ -114,7 +152,11 @@ export const MobilePushManager = {
    * Handle notification response (user tapped a notification).
    * Navigates to the appropriate screen using MOBILE_ACTION_ROUTE_MAP.
    */
-  setupResponseListener(): Notifications.Subscription {
+  setupResponseListener(): NotificationsType.Subscription | null {
+    if (Platform.OS === 'web' || isAndroidExpoGo()) return null;
+    const Notifications = getNotifications();
+    if (!Notifications) return null;
+
     return Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data as Record<string, unknown> | undefined;
 
@@ -138,7 +180,11 @@ export const MobilePushManager = {
   /**
    * Listen for token changes and re-register with server.
    */
-  setupTokenRefreshListener(): Notifications.Subscription {
+  setupTokenRefreshListener(): NotificationsType.Subscription | null {
+    if (Platform.OS === 'web' || isAndroidExpoGo()) return null;
+    const Notifications = getNotifications();
+    if (!Notifications) return null;
+
     return Notifications.addPushTokenListener(async (token) => {
       try {
         const instId = await getInstallationId();
@@ -160,9 +206,11 @@ export const MobilePushManager = {
    * Setup badge count reset on app foreground.
    */
   setupBadgeReset(): void {
+    if (Platform.OS === 'web' || isAndroidExpoGo()) return;
     AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
-        Notifications.setBadgeCountAsync(0).catch(() => {});
+        const Notifications = getNotifications();
+        Notifications?.setBadgeCountAsync(0).catch(() => {});
       }
     });
   },

@@ -14,7 +14,6 @@ import { sanitizeAIInput } from './safety/injection';
 import { globalAIRateLimiter } from './safety/rate-limiter';
 import {
   GoogleGeminiClient,
-  MockGeminiClient,
   normalizeGeminiError,
   type GeminiClientInterface,
 } from './gemini/client';

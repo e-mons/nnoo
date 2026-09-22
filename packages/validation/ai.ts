@@ -815,13 +815,16 @@ export const BusinessInsightSignalSchema = z.object({
 });
 
 export const StructuredBusinessSummaryResponseSchema = z.object({
-  schemaVersion: z.string().min(1),
+  schemaVersion: z.string().default('1.0.0'),
   headline: z.string().min(1).max(200),
-  overview: z.string().min(1).max(1500),
+  overview: z.preprocess(
+    (val) => (Array.isArray(val) ? val.filter(Boolean).join('\n\n') : val),
+    z.string().min(1).max(2500)
+  ),
   highlightSignalKeys: z.array(BusinessInsightSignalKeySchema).max(5),
   attentionSignalKeys: z.array(BusinessInsightSignalKeySchema).max(5),
   actionKeys: z.array(BusinessInsightActionKeySchema).max(5),
-}) satisfies z.ZodType<StructuredBusinessSummaryResponse>;
+}) satisfies z.ZodType<StructuredBusinessSummaryResponse, z.ZodTypeDef, any>;
 
 export const GenerateBusinessSummaryInputSchema = z.object({
   summaryType: BusinessSummaryTypeSchema,
@@ -913,7 +916,7 @@ export const AskNnooToolKeySchema = z.enum([
 ]) satisfies z.ZodType<AskNnooToolKey>;
 
 export const StructuredAskNnooResponseSchema = z.object({
-  schemaVersion: z.string().min(1),
+  schemaVersion: z.string().default('1.0.0'),
   responseType: AskNnooResponseTypeSchema,
   headline: z.string().max(200).nullish(),
   segments: z.array(AskNnooResponseSegmentSchema).max(50),
@@ -923,7 +926,7 @@ export const StructuredAskNnooResponseSchema = z.object({
   actionKeys: z.array(AskNnooActionKeySchema).max(10),
   followUpQuestions: z.array(z.string().max(200)).max(5),
   requiredCapabilities: z.array(z.string().max(100)).max(20),
-}) satisfies z.ZodType<StructuredAskNnooResponse>;
+}) satisfies z.ZodType<StructuredAskNnooResponse, z.ZodTypeDef, any>;
 
 export const SendAskNnooMessageInputSchema = z.object({
   conversationId: z.string().uuid().optional(),
@@ -1014,7 +1017,10 @@ export const BusinessHealthActionKeySchema = z.enum([
 export const StructuredHealthExplanationResponseSchema = z.object({
   schemaVersion: z.literal('1.0.0').default('1.0.0'),
   headline: z.string().min(1).max(200),
-  overview: z.string().min(1).max(2000),
+  overview: z.preprocess(
+    (val) => (Array.isArray(val) ? val.filter(Boolean).join('\n\n') : val),
+    z.string().min(1).max(2500)
+  ),
   strengthReasonKeys: z.array(BusinessHealthReasonKeySchema).default([]),
   attentionReasonKeys: z.array(BusinessHealthReasonKeySchema).default([]),
   actionKeys: z.array(BusinessHealthActionKeySchema).default([]),
@@ -1235,7 +1241,10 @@ export const ExplainCreditPassportInputSchema = z.object({
 export const StructuredCreditPassportExplanationResponseSchema = z.object({
   schemaVersion: z.literal('1.0.0').default('1.0.0'),
   headline: z.string().min(1).max(200),
-  overview: z.string().min(1).max(2000),
+  overview: z.preprocess(
+    (val) => (Array.isArray(val) ? val.filter(Boolean).join('\n\n') : val),
+    z.string().min(1).max(2500)
+  ),
   highlightKeys: z.array(CreditPassportHighlightKeySchema).default([]),
   attentionKeys: z.array(CreditPassportAttentionKeySchema).default([]),
 });

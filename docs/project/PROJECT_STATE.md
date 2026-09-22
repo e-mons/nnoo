@@ -11,7 +11,7 @@ tranche_3_acceptance: accepted
 tranche_4_acceptance: accepted
 august_2026_delivery_acceptance: accepted
 last_green_commit: 69b8cc8
-last_database_migration: 20260904000000_cascade_integrity_and_storage.sql
+last_database_migration: 20260922000000_storage_cleanup_triggers.sql
 last_acceptance_report: docs/project/AUGUST_2026_DELIVERY_ACCEPTANCE_REPORT.md
 web_production: deployed
 mobile_production_candidate: ready
@@ -21,7 +21,7 @@ go_live_rehearsal: passed
 handover_status: complete
 production_release_status: accepted
 next_approved_feature: none — August 2026 delivery closed; future work requires a new approved scope
-updated_at: 2026-09-04
+updated_at: 2026-09-22
 
 ---
 

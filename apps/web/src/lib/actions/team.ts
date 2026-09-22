@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
+import { sendTransactionalEmail } from '@/lib/email/service';
 
 export async function inviteTeamMember(businessId: string, businessSlug: string, formData: FormData) {
   const supabase = await createClient();
@@ -32,9 +33,41 @@ export async function inviteTeamMember(businessId: string, businessSlug: string,
     return { error: error.message };
   }
 
-  // TODO: Actually send an email containing the unhashed `token`.
-  // For now, in MVP, we just return the link to display it to the user.
-  // The link must use the UNHASHED token.
+  // Fetch business name for personalized invitation email
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('name')
+    .eq('id', businessId)
+    .maybeSingle();
+
+  const businessName = business?.name || 'an NNOO business';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const fullInviteUrl = `${siteUrl}/invitations/${token}`;
+
+  // Dispatch real transactional email to invitee
+  await sendTransactionalEmail({
+    to: email,
+    subject: `You have been invited to join ${businessName} on NNOO`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #0A0D14; color: #FFFFFF; border-radius: 12px; border: 1px solid #1F2937;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="color: #B8F25C; font-size: 28px; margin: 0; letter-spacing: 2px;">NNOO</h1>
+          <p style="color: #9CA3AF; font-size: 14px; margin-top: 4px;">Africa's AI Business Operating System</p>
+        </div>
+        <div style="background-color: #111827; padding: 24px; border-radius: 8px; border: 1px solid #374151; text-align: center;">
+          <h2 style="color: #FFFFFF; font-size: 20px; margin-top: 0;">Team Invitation</h2>
+          <p style="color: #D1D5DB; font-size: 15px; line-height: 1.5;">
+            You have been invited to join <strong>${businessName}</strong> as a <strong>${role}</strong>.
+          </p>
+          <div style="margin: 24px 0;">
+            <a href="${fullInviteUrl}" style="display: inline-block; background-color: #B8F25C; color: #0A0D14; font-weight: bold; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 15px;">Accept Invitation</a>
+          </div>
+          <p style="color: #9CA3AF; font-size: 13px;">This invitation will expire in 7 days.</p>
+        </div>
+      </div>
+    `,
+    text: `You have been invited to join ${businessName} on NNOO as a ${role}.\n\nClick the link to accept your invitation:\n${fullInviteUrl}\n\nThis invitation will expire in 7 days.`,
+  });
   
   revalidatePath(`/app/${businessSlug}/settings/team`);
   return { success: true, inviteLink: `/invitations/${token}` };

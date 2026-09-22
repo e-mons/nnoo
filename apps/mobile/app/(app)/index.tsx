@@ -21,6 +21,7 @@ export default function AppIndexScreen() {
   const [position, setPosition] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [pendingReviewsCount, setPendingReviewsCount] = useState<number>(0);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -42,7 +43,7 @@ export default function AppIndexScreen() {
     const endStr = now.toISOString().split('T')[0];
 
     try {
-      const [metricsRes, positionRes, unreadRes, pendingReviewsRes] = await Promise.all([
+      const [metricsRes, positionRes, unreadRes, pendingReviewsRes, salesRes, expensesRes] = await Promise.all([
         supabase.rpc('get_dashboard_performance_metrics', {
           p_business_id: activeBusiness.id,
           p_start_date: startStr,
@@ -62,12 +63,59 @@ export default function AppIndexScreen() {
           .select('id', { count: 'exact', head: true })
           .eq('business_id', activeBusiness.id)
           .eq('status', 'pending_review'),
+        supabase
+          .from('sales')
+          .select('id, sale_number, total_minor, payment_status, occurred_at, created_at, customers ( name )')
+          .eq('business_id', activeBusiness.id)
+          .order('occurred_at', { ascending: false })
+          .limit(5),
+        supabase
+          .from('expenses')
+          .select('id, expense_number, total_minor, payment_status, status, occurred_at, created_at, suppliers ( name ), expense_categories ( name )')
+          .eq('business_id', activeBusiness.id)
+          .neq('status', 'reversed')
+          .order('occurred_at', { ascending: false })
+          .limit(5),
       ]);
 
       if (metricsRes.data) setMetrics(metricsRes.data);
       if (positionRes.data) setPosition(positionRes.data);
       if (unreadRes.count !== null && unreadRes.count !== undefined) setUnreadCount(unreadRes.count);
       if (pendingReviewsRes.count !== null && pendingReviewsRes.count !== undefined) setPendingReviewsCount(pendingReviewsRes.count);
+
+      const salesList = salesRes.data || [];
+      const expensesList = expensesRes.data || [];
+
+      const combined = [
+        ...salesList.map((s: any) => ({
+          id: `sale-${s.id}`,
+          originalId: s.id,
+          type: 'sale' as const,
+          title: `Sale #${s.sale_number}`,
+          party: s.customers?.name || 'Walk-in Customer',
+          amountMinor: parseInt(s.total_minor, 10) || 0,
+          isMoneyIn: true,
+          date: new Date(s.occurred_at || s.created_at),
+          status: s.payment_status === 'paid' ? 'Paid in Full' : 'Awaiting Payment',
+          isPaid: s.payment_status === 'paid',
+          route: `/(app)/sales/${s.id}`,
+        })),
+        ...expensesList.map((e: any) => ({
+          id: `expense-${e.id}`,
+          originalId: e.id,
+          type: 'expense' as const,
+          title: e.expense_categories?.name || `Expense #${e.expense_number}`,
+          party: e.suppliers?.name || 'Vendor / Supplier',
+          amountMinor: parseInt(e.total_minor, 10) || 0,
+          isMoneyIn: false,
+          date: new Date(e.occurred_at || e.created_at),
+          status: e.payment_status === 'paid' ? 'Paid in Full' : 'Unpaid Bill',
+          isPaid: e.payment_status === 'paid',
+          route: `/(app)/more/expenses/${e.id}`,
+        })),
+      ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 6);
+
+      setRecentActivity(combined);
     } catch (error) {
       console.error('Error fetching dashboard', error);
     }
@@ -94,8 +142,8 @@ export default function AppIndexScreen() {
     <View style={styles.container}>
       {/* Dynamic Ambient Background */}
       <LinearGradient
-        colors={['#06130E', '#0B2219', '#06130E']}
-        style={StyleSheet.absoluteFillObject}
+        colors={['#0A1C16', '#122E24', '#0A1C16']}
+        style={StyleSheet.absoluteFill}
       />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
@@ -216,439 +264,321 @@ export default function AppIndexScreen() {
             </View>
           )}
 
-          {/* Hero Financial Health Card */}
+          {/* Hero Financial Glance (Apple Wallet / Revolut Style Obsidian Card) */}
           <View style={styles.heroCardContainer}>
             <LinearGradient
-              colors={['#133829', '#0D271D', '#0A1C16']}
+              colors={['#103527', '#0A2017', '#071610']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.heroCard}
             >
-              {/* Subtle top highlight border */}
-              <View style={styles.heroTopHighlight} />
-
+              {/* Card Top Row: Live Store Status + Period Pill Switcher */}
               <View style={styles.heroHeader}>
                 <View style={styles.heroTag}>
                   <View style={[styles.heroIndicator, { backgroundColor: isPositiveResult ? '#B8F25C' : '#FF4D4D' }]} />
                   <Text style={styles.heroTagText}>
-                    {period === 'month' ? 'THIS MONTH' : 'TODAY'} • OPERATING RESULT
+                    {period === 'month' ? 'THIS MONTH' : 'TODAY'} • NET CASH
                   </Text>
                 </View>
-                <Badge 
-                  label={isPositiveResult ? 'Profitable' : 'Attention'} 
-                  variant={isPositiveResult ? 'success' : 'error'} 
-                />
+
+                {/* Embedded Period Switcher */}
+                <View style={styles.heroPeriodToggle}>
+                  <TouchableOpacity
+                    style={[styles.heroPeriodBtn, period === 'today' && styles.heroPeriodBtnActive]}
+                    onPress={() => setPeriod('today')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.heroPeriodText, period === 'today' && styles.heroPeriodTextActive]}>
+                      Today
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.heroPeriodBtn, period === 'month' && styles.heroPeriodBtnActive]}
+                    onPress={() => setPeriod('month')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.heroPeriodText, period === 'month' && styles.heroPeriodTextActive]}>
+                      Month
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
+              {/* Main Balance Display */}
               <View style={styles.heroMainAmount}>
+                <Text style={styles.heroSubLabel}>Available In Hand</Text>
                 <MoneyText 
                   amountMinor={operatingResult} 
-                  style={[styles.heroAmountText, { color: isPositiveResult ? '#B8F25C' : '#FF4D4D' }]} 
+                  style={[styles.heroAmountText, { color: isPositiveResult ? '#FFFFFF' : '#FF8585' }]} 
                 />
-              </View>
-
-              <View style={styles.heroDivider} />
-
-              <View style={styles.heroStatsRow}>
-                <View style={styles.heroStatItem}>
-                  <Text style={styles.heroStatLabel}>Gross Profit</Text>
-                  <MoneyText 
-                    amountMinor={metrics?.grossProfitMinor || 0} 
-                    style={styles.heroStatValue} 
+                <View style={styles.heroStatusRow}>
+                  <Badge 
+                    label={isPositiveResult ? 'Profitable operation' : 'Cash deficit'} 
+                    variant={isPositiveResult ? 'success' : 'error'} 
                   />
                 </View>
-                <View style={styles.heroStatSeparator} />
-                <View style={styles.heroStatItem}>
-                  <Text style={styles.heroStatLabel}>Expenses</Text>
+              </View>
+
+              {/* 3-Column Micro Metrics Dock */}
+              <View style={styles.heroMetricsDock}>
+                <View style={styles.heroDockItem}>
+                  <Text style={styles.heroDockLabel}>Cash In</Text>
+                  <MoneyText 
+                    amountMinor={metrics?.netSalesMinor || 0} 
+                    style={[styles.heroDockValue, { color: '#B8F25C' }]} 
+                  />
+                </View>
+                <View style={styles.heroDockSeparator} />
+                <View style={styles.heroDockItem}>
+                  <Text style={styles.heroDockLabel}>Cash Out</Text>
                   <MoneyText 
                     amountMinor={metrics?.operatingExpensesMinor || 0} 
-                    style={[styles.heroStatValue, { color: '#FFA0A0' }]} 
+                    style={[styles.heroDockValue, { color: '#FF7B72' }]} 
+                  />
+                </View>
+                <View style={styles.heroDockSeparator} />
+                <View style={styles.heroDockItem}>
+                  <Text style={styles.heroDockLabel}>Owed by Clients</Text>
+                  <MoneyText 
+                    amountMinor={position?.accountsReceivableMinor || 0} 
+                    style={[styles.heroDockValue, { color: '#79C0FF' }]} 
                   />
                 </View>
               </View>
             </LinearGradient>
           </View>
 
-          {/* Quick Actions Bar */}
-          <View style={styles.quickActionsContainer}>
+          {/* Signature 4 Circular Action Buttons (Cash App / Revolut Style) */}
+          <View style={styles.actionStripContainer}>
             <TouchableOpacity 
-              style={styles.actionBtn}
+              style={styles.actionCircleItem}
               onPress={() => router.push('/(app)/sales/new')}
               activeOpacity={0.75}
             >
-              <LinearGradient
-                colors={['rgba(184, 242, 92, 0.2)', 'rgba(184, 242, 92, 0.05)']}
-                style={styles.actionIconCircle}
-              >
-                <Feather name="plus" size={20} color="#B8F25C" />
-              </LinearGradient>
-              <Text style={styles.actionBtnText}>New Sale</Text>
+              <View style={[styles.actionCircle, styles.actionCircleLime]}>
+                <Feather name="plus" size={26} color="#0A1C16" />
+              </View>
+              <Text style={styles.actionCircleLabel}>New Sale</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.actionBtn}
-              onPress={() => router.push('/(app)/invoices')}
+              style={styles.actionCircleItem}
+              onPress={() => router.push('/(app)/more/expenses/new')}
               activeOpacity={0.75}
             >
-              <LinearGradient
-                colors={['rgba(59, 130, 246, 0.2)', 'rgba(59, 130, 246, 0.05)']}
-                style={styles.actionIconCircle}
-              >
-                <Feather name="file-plus" size={19} color="#60A5FA" />
-              </LinearGradient>
-              <Text style={styles.actionBtnText}>Invoice</Text>
+              <View style={[styles.actionCircle, styles.actionCircleRed]}>
+                <Feather name="arrow-up-right" size={24} color="#FF6B6B" />
+              </View>
+              <Text style={styles.actionCircleLabel}>Expense</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.actionBtn}
-              onPress={() => router.push('/(app)/inventory')}
+              style={styles.actionCircleItem}
+              onPress={() => router.push('/(app)/invoices/new')}
               activeOpacity={0.75}
             >
-              <LinearGradient
-                colors={['rgba(245, 158, 11, 0.2)', 'rgba(245, 158, 11, 0.05)']}
-                style={styles.actionIconCircle}
-              >
-                <Feather name="box" size={19} color="#FBBF24" />
-              </LinearGradient>
-              <Text style={styles.actionBtnText}>Stock</Text>
+              <View style={[styles.actionCircle, styles.actionCircleBlue]}>
+                <Feather name="file-text" size={22} color="#79C0FF" />
+              </View>
+              <Text style={styles.actionCircleLabel}>Invoice</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.actionBtn}
-              onPress={() => router.push('/(app)/more/expenses')}
+              style={styles.actionCircleItem}
+              onPress={() => router.push('/(app)/more/products/new')}
               activeOpacity={0.75}
             >
-              <LinearGradient
-                colors={['rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.05)']}
-                style={styles.actionIconCircle}
-              >
-                <Feather name="credit-card" size={19} color="#F87171" />
-              </LinearGradient>
-              <Text style={styles.actionBtnText}>Expense</Text>
+              <View style={[styles.actionCircle, styles.actionCircleAmber]}>
+                <Feather name="package" size={22} color="#F59E0B" />
+              </View>
+              <Text style={styles.actionCircleLabel}>Add Item</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Period Toggle Switcher */}
-          <View style={styles.periodSwitcherWrapper}>
-            <View style={styles.periodSwitcher}>
-              <TouchableOpacity
-                style={[styles.periodOption, period === 'today' && styles.periodOptionActive]}
-                onPress={() => setPeriod('today')}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.periodOptionText, period === 'today' && styles.periodOptionTextActive]}>
-                  Today
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.periodOption, period === 'month' && styles.periodOptionActive]}
-                onPress={() => setPeriod('month')}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.periodOptionText, period === 'month' && styles.periodOptionTextActive]}>
-                  This Month
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Performance Section */}
+          {/* Combined Live Activity Feed (iOS Grouped Table View Style) */}
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <View style={[styles.sectionIconBadge, { backgroundColor: 'rgba(184, 242, 92, 0.15)' }]}>
-                <Feather name="activity" size={16} color="#B8F25C" />
+                <Feather name="clock" size={16} color="#B8F25C" />
               </View>
-              <Text style={styles.sectionTitle}>Performance</Text>
+              <Text style={styles.sectionTitle}>Today's Transactions</Text>
             </View>
-            <Text style={styles.sectionSubBadge}>Real-time</Text>
-          </View>
-          
-          <View style={styles.grid}>
-            {/* Net Sales Card */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: 'rgba(184, 242, 92, 0.12)' }]}>
-                    <Feather name="trending-up" size={16} color="#B8F25C" />
-                  </View>
-                  <Text style={styles.cardLabel}>Net Sales</Text>
-                </View>
-                <MoneyText amountMinor={metrics?.netSalesMinor || 0} style={styles.cardValue} />
-                <Text style={styles.cardSubtext}>Revenue generated</Text>
-              </LinearGradient>
-            </View>
-
-            {/* Gross Profit Card */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: 'rgba(96, 165, 250, 0.12)' }]}>
-                    <Feather name="pie-chart" size={16} color="#60A5FA" />
-                  </View>
-                  <Text style={styles.cardLabel}>Gross Profit</Text>
-                </View>
-                <MoneyText amountMinor={metrics?.grossProfitMinor || 0} style={styles.cardValue} />
-                <Text style={styles.cardSubtext}>Before overheads</Text>
-              </LinearGradient>
-            </View>
-
-            {/* Operating Expenses Card */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: 'rgba(248, 113, 113, 0.12)' }]}>
-                    <Feather name="trending-down" size={16} color="#F87171" />
-                  </View>
-                  <Text style={styles.cardLabel}>Expenses</Text>
-                </View>
-                <MoneyText amountMinor={metrics?.operatingExpensesMinor || 0} style={[styles.cardValue, { color: '#F87171' }]} />
-                <Text style={styles.cardSubtext}>Operations & bills</Text>
-              </LinearGradient>
-            </View>
-
-            {/* Net Margin / Op. Result Card */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: isPositiveResult ? 'rgba(184, 242, 92, 0.15)' : 'rgba(248, 113, 113, 0.15)' }]}>
-                    <Feather name="check-circle" size={16} color={isPositiveResult ? '#B8F25C' : '#F87171'} />
-                  </View>
-                  <Text style={styles.cardLabel}>Net Result</Text>
-                </View>
-                <MoneyText 
-                  amountMinor={operatingResult} 
-                  style={[styles.cardValue, { color: isPositiveResult ? '#B8F25C' : '#F87171' }]} 
-                />
-                <Text style={styles.cardSubtext}>{isPositiveResult ? 'Net surplus' : 'Net deficit'}</Text>
-              </LinearGradient>
-            </View>
+            <TouchableOpacity onPress={() => router.push('/(app)/sales')} activeOpacity={0.7}>
+              <Text style={styles.sectionSubBadgeLink}>View All in Money →</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Current Position / Balance Sheet Section */}
+          {recentActivity.length === 0 ? (
+            <View style={styles.emptyActivityCard}>
+              <Feather name="inbox" size={32} color="rgba(255,255,255,0.2)" />
+              <Text style={styles.emptyActivityTitle}>No transactions recorded yet today</Text>
+              <Text style={styles.emptyActivitySub}>Tap "New Sale" above to record your first order!</Text>
+            </View>
+          ) : (
+            <View style={styles.activityGroupCard}>
+              {recentActivity.map((item, index) => {
+                const isLast = index === recentActivity.length - 1;
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.activityRow, isLast && styles.activityRowLast]}
+                    onPress={() => router.push(item.route as any)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.activityRowLeft}>
+                      <View style={[
+                        styles.activityIconCircle,
+                        { backgroundColor: item.isMoneyIn ? 'rgba(184, 242, 92, 0.12)' : 'rgba(255, 107, 107, 0.12)' }
+                      ]}>
+                        <Feather 
+                          name={item.isMoneyIn ? 'arrow-down-left' : 'arrow-up-right'} 
+                          size={18} 
+                          color={item.isMoneyIn ? '#B8F25C' : '#FF7B72'} 
+                        />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.activityRowTitle} numberOfLines={1}>{item.title}</Text>
+                        <Text style={styles.activityRowSub} numberOfLines={1}>{item.party}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.activityRowRight}>
+                      <MoneyText 
+                        amountMinor={item.amountMinor} 
+                        style={[
+                          styles.activityRowAmount, 
+                          { color: item.isMoneyIn ? '#B8F25C' : '#FF7B72' }
+                        ]} 
+                      />
+                      <Badge 
+                        label={item.status} 
+                        variant={item.isPaid ? 'success' : 'warning'} 
+                      />
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+
+          {/* Consolidated Store Vital Signs Card (Replaces the 8 fragmented boxes) */}
           <View style={[styles.sectionHeader, { marginTop: 28 }]}>
             <View style={styles.sectionTitleRow}>
-              <View style={[styles.sectionIconBadge, { backgroundColor: 'rgba(96, 165, 250, 0.15)' }]}>
-                <Feather name="compass" size={16} color="#60A5FA" />
+              <View style={[styles.sectionIconBadge, { backgroundColor: 'rgba(121, 192, 255, 0.15)' }]}>
+                <Feather name="bar-chart-2" size={16} color="#79C0FF" />
               </View>
-              <Text style={styles.sectionTitle}>Financial Position</Text>
+              <Text style={styles.sectionTitle}>Store Vital Signs</Text>
             </View>
-            <Text style={styles.sectionSubBadge}>Balance Sheet</Text>
+            <TouchableOpacity onPress={() => router.push('/(app)/more/reports' as any)} activeOpacity={0.7}>
+              <Text style={styles.sectionSubBadgeLink}>Reports →</Text>
+            </TouchableOpacity>
           </View>
-          
-          <View style={styles.grid}>
-            {/* Receivables */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: 'rgba(52, 211, 153, 0.12)' }]}>
-                    <Feather name="arrow-down-left" size={16} color="#34D399" />
-                  </View>
-                  <Text style={styles.cardLabel}>Receivables</Text>
-                </View>
-                <MoneyText amountMinor={position?.accountsReceivableMinor || 0} style={styles.cardValue} />
-                <Text style={styles.cardSubtext}>Owed by clients</Text>
-              </LinearGradient>
-            </View>
 
-            {/* Payables */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: 'rgba(251, 146, 60, 0.12)' }]}>
-                    <Feather name="arrow-up-right" size={16} color="#FB923C" />
-                  </View>
-                  <Text style={styles.cardLabel}>Payables</Text>
+          <View style={styles.vitalSignsCard}>
+            <View style={styles.vitalGridRow}>
+              <View style={styles.vitalGridCell}>
+                <View style={styles.vitalHeaderRow}>
+                  <Feather name="trending-up" size={15} color="#B8F25C" />
+                  <Text style={styles.vitalCellLabel}>Gross Profit</Text>
                 </View>
-                <MoneyText amountMinor={position?.accountsPayableMinor || 0} style={[styles.cardValue, { color: '#FB923C' }]} />
-                <Text style={styles.cardSubtext}>Owed to vendors</Text>
-              </LinearGradient>
-            </View>
+                <MoneyText amountMinor={metrics?.grossProfitMinor || 0} style={styles.vitalCellValue} />
+                <Text style={styles.vitalCellSub}>Sales minus cost</Text>
+              </View>
 
-            {/* Inventory Valuation */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: 'rgba(167, 139, 250, 0.12)' }]}>
-                    <Feather name="package" size={16} color="#A78BFA" />
-                  </View>
-                  <Text style={styles.cardLabel}>Stock Value</Text>
-                </View>
-                <MoneyText amountMinor={position?.inventoryValueMinor || 0} style={styles.cardValue} />
-                <Text style={styles.cardSubtext}>Assets on hand</Text>
-              </LinearGradient>
-            </View>
+              <View style={styles.vitalGridDividerV} />
 
-            {/* Low Stock Alerts */}
-            <View style={styles.cardWrapper}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                style={styles.metricCard}
+              <TouchableOpacity 
+                style={styles.vitalGridCell}
+                onPress={() => router.push('/(app)/inventory')}
+                activeOpacity={0.7}
               >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconBox, { backgroundColor: (position?.lowStockCount || 0) > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(184, 242, 92, 0.12)' }]}>
-                    <Feather 
-                      name="alert-triangle" 
-                      size={16} 
-                      color={(position?.lowStockCount || 0) > 0 ? '#EF4444' : '#B8F25C'} 
-                    />
-                  </View>
-                  <Text style={styles.cardLabel}>Low Stock</Text>
+                <View style={styles.vitalHeaderRow}>
+                  <Feather name="package" size={15} color="#F59E0B" />
+                  <Text style={styles.vitalCellLabel}>Stock on Hand</Text>
                 </View>
-                <Text style={[styles.cardValue, (position?.lowStockCount || 0) > 0 && { color: '#EF4444' }]}>
-                  {position?.lowStockCount || 0}
+                <MoneyText amountMinor={position?.inventoryValueMinor || 0} style={styles.vitalCellValue} />
+                <Text style={[styles.vitalCellSub, (position?.lowStockCount || 0) > 0 && { color: '#FF7B72', fontWeight: '700' }]}>
+                  {(position?.lowStockCount || 0) > 0 ? `${position.lowStockCount} items need restock` : 'Inventory healthy'}
                 </Text>
-                <Text style={styles.cardSubtext}>
-                  {(position?.lowStockCount || 0) > 0 ? 'Restock required' : 'All items optimal'}
-                </Text>
-              </LinearGradient>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.vitalGridDividerH} />
+
+            <View style={styles.vitalGridRow}>
+              <TouchableOpacity 
+                style={styles.vitalGridCell}
+                onPress={() => router.push('/(app)/more/contacts' as any)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.vitalHeaderRow}>
+                  <Feather name="users" size={15} color="#79C0FF" />
+                  <Text style={styles.vitalCellLabel}>Money Clients Owe</Text>
+                </View>
+                <MoneyText amountMinor={position?.accountsReceivableMinor || 0} style={styles.vitalCellValue} />
+                <Text style={styles.vitalCellSub}>Unpaid invoices</Text>
+              </TouchableOpacity>
+
+              <View style={styles.vitalGridDividerV} />
+
+              <TouchableOpacity 
+                style={styles.vitalGridCell}
+                onPress={() => router.push('/(app)/more/expenses' as any)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.vitalHeaderRow}>
+                  <Feather name="credit-card" size={15} color="#FF7B72" />
+                  <Text style={styles.vitalCellLabel}>Bills & Payables</Text>
+                </View>
+                <MoneyText amountMinor={position?.accountsPayableMinor || 0} style={[styles.vitalCellValue, { color: '#FF7B72' }]} />
+                <Text style={styles.vitalCellSub}>Owed to suppliers</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
-          {/* Smart Business Tools & AI Section */}
-          <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+          {/* Ask NNOO / AI Advisor Card */}
+          <View style={[styles.sectionHeader, { marginTop: 28 }]}>
             <View style={styles.sectionTitleRow}>
               <View style={[styles.sectionIconBadge, { backgroundColor: 'rgba(184, 242, 92, 0.15)' }]}>
                 <Feather name="cpu" size={16} color="#B8F25C" />
               </View>
-              <Text style={styles.sectionTitle}>Smart Business Tools</Text>
+              <Text style={styles.sectionTitle}>AI Business Advisor</Text>
             </View>
-            <TouchableOpacity 
-              onPress={() => router.push('/(app)/intelligence')}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.sectionSubBadge, { color: '#B8F25C' }]}>View All →</Text>
+            <TouchableOpacity onPress={() => router.push('/(app)/intelligence')} activeOpacity={0.7}>
+              <Text style={styles.sectionSubBadgeLink}>All AI Tools →</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Ask NNOO Featured Banner */}
           <TouchableOpacity
-            style={styles.askNnooBannerContainer}
+            style={styles.aiAdvisorCard}
             onPress={() => router.push('/(app)/intelligence/assistant')}
             activeOpacity={0.85}
           >
             <LinearGradient
-              colors={['#103527', '#0A2218']}
+              colors={['#103527', '#0A2017']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.askNnooBanner}
+              style={styles.aiAdvisorGradient}
             >
-              <View style={styles.askNnooLeft}>
-                <View style={styles.askNnooIconBox}>
+              <View style={styles.aiAdvisorLeft}>
+                <View style={styles.aiAdvisorIconBox}>
                   <Feather name="message-square" size={20} color="#B8F25C" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <View style={styles.askNnooTitleRow}>
-                    <Text style={styles.askNnooTitle}>Ask NNOO</Text>
+                  <View style={styles.aiAdvisorTitleRow}>
+                    <Text style={styles.aiAdvisorTitle}>Ask NNOO Anything</Text>
                     <View style={styles.aiPill}>
-                      <Text style={styles.aiPillText}>AI ASSISTANT</Text>
+                      <Text style={styles.aiPillText}>AI COPILOT</Text>
                     </View>
                   </View>
-                  <Text style={styles.askNnooSubtitle} numberOfLines={2}>
-                    Ask questions about your sales, margins, debt, and inventory.
+                  <Text style={styles.aiAdvisorSubtitle} numberOfLines={2}>
+                    "How are my sales performing today compared to last week?"
                   </Text>
                 </View>
               </View>
               <Feather name="chevron-right" size={20} color="#B8F25C" />
             </LinearGradient>
           </TouchableOpacity>
-
-          {/* 2x2 Smart Tools Grid */}
-          <View style={styles.grid}>
-            {/* AI Bookkeeper */}
-            <TouchableOpacity 
-              style={styles.cardWrapper}
-              onPress={() => router.push('/(app)/intelligence/bookkeeper')}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={['rgba(245, 158, 11, 0.1)', 'rgba(255,255,255,0.02)']}
-                style={styles.toolCard}
-              >
-                <View style={[styles.iconBox, { backgroundColor: 'rgba(245, 158, 11, 0.2)' }]}>
-                  <Feather name="zap" size={16} color="#F59E0B" />
-                </View>
-                <Text style={styles.toolCardTitle}>AI Bookkeeper</Text>
-                <Text style={styles.toolCardDesc}>
-                  {pendingReviewsCount > 0 ? `${pendingReviewsCount} to review` : 'Classify transactions'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* Smart Insights */}
-            <TouchableOpacity 
-              style={styles.cardWrapper}
-              onPress={() => router.push('/(app)/intelligence/insights')}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={['rgba(59, 130, 246, 0.1)', 'rgba(255,255,255,0.02)']}
-                style={styles.toolCard}
-              >
-                <View style={[styles.iconBox, { backgroundColor: 'rgba(59, 130, 246, 0.2)' }]}>
-                  <Feather name="trending-up" size={16} color="#60A5FA" />
-                </View>
-                <Text style={styles.toolCardTitle}>Smart Insights</Text>
-                <Text style={styles.toolCardDesc}>Verified business summaries</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* Business Health */}
-            <TouchableOpacity 
-              style={styles.cardWrapper}
-              onPress={() => router.push('/(app)/intelligence/health')}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={['rgba(16, 185, 129, 0.1)', 'rgba(255,255,255,0.02)']}
-                style={styles.toolCard}
-              >
-                <View style={[styles.iconBox, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-                  <Feather name="activity" size={16} color="#34D399" />
-                </View>
-                <Text style={styles.toolCardTitle}>Business Health</Text>
-                <Text style={styles.toolCardDesc}>Operational health score</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* Credit Passport */}
-            <TouchableOpacity 
-              style={styles.cardWrapper}
-              onPress={() => router.push('/(app)/intelligence/passport')}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={['rgba(20, 184, 166, 0.1)', 'rgba(255,255,255,0.02)']}
-                style={styles.toolCard}
-              >
-                <View style={[styles.iconBox, { backgroundColor: 'rgba(20, 184, 166, 0.2)' }]}>
-                  <Feather name="award" size={16} color="#14B8A6" />
-                </View>
-                <Text style={styles.toolCardTitle}>Credit Passport</Text>
-                <Text style={styles.toolCardDesc}>Verified financial profile</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
 
         </ScrollView>
       </SafeAreaView>
@@ -666,8 +596,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: { 
     paddingHorizontal: 20, 
-    paddingTop: 12, 
-    paddingBottom: 130,
+    paddingTop: 18, 
+    paddingBottom: 40,
   }, 
   
   /* Header Styles */
@@ -675,8 +605,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
-    marginBottom: 24,
-    marginTop: 4,
+    marginBottom: 22,
+    marginTop: 2,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -818,31 +748,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  /* Hero Card */
+  /* Hero Card (Apple Wallet / Revolut Style) */
   heroCardContainer: {
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 12,
   },
   heroCard: {
-    borderRadius: 26,
-    padding: 22,
-    borderWidth: 1,
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1.5,
     borderColor: 'rgba(184, 242, 92, 0.22)',
     overflow: 'hidden',
-    position: 'relative',
-  },
-  heroTopHighlight: {
-    position: 'absolute',
-    top: 0,
-    left: '20%',
-    right: '20%',
-    height: 1.5,
-    backgroundColor: '#B8F25C',
-    opacity: 0.6,
   },
   heroHeader: {
     flexDirection: 'row',
@@ -856,120 +776,144 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   heroIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
   heroTagText: {
     fontSize: 11,
     fontWeight: '800',
-    color: 'rgba(255,255,255,0.65)',
+    color: 'rgba(255,255,255,0.7)',
     letterSpacing: 0.8,
   },
-  heroMainAmount: {
-    marginBottom: 16,
-  },
-  heroAmountText: {
-    fontSize: 34,
-    fontWeight: '900',
-    letterSpacing: -1,
-  },
-  heroDivider: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    marginBottom: 14,
-  },
-  heroStatsRow: {
+  heroPeriodToggle: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  heroStatItem: {
-    flex: 1,
-  },
-  heroStatLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.55)',
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  heroStatValue: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: -0.3,
-  },
-  heroStatSeparator: {
-    width: 1,
-    height: 28,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    marginHorizontal: 16,
-  },
-
-  /* Quick Actions */
-  quickActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-    gap: 10,
-  },
-  actionBtn: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderRadius: 14,
+    padding: 3,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 18,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
   },
-  actionIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+  heroPeriodBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
   },
-  actionBtnText: {
-    color: '#FFFFFF',
-    fontSize: 12,
+  heroPeriodBtnActive: {
+    backgroundColor: 'rgba(184, 242, 92, 0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.35)',
+  },
+  heroPeriodText: {
+    fontSize: 11,
     fontWeight: '700',
-    letterSpacing: -0.2,
+    color: 'rgba(255,255,255,0.5)',
   },
-
-  /* Period Switcher */
-  periodSwitcherWrapper: {
-    marginBottom: 24,
+  heroPeriodTextActive: {
+    color: '#B8F25C',
+    fontWeight: '800',
   },
-  periodSwitcher: {
+  heroMainAmount: {
+    marginBottom: 12,
+  },
+  heroSubLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.55)',
+    marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  heroAmountText: {
+    fontSize: 32,
+    fontWeight: '900',
+    letterSpacing: -1,
+    marginBottom: 6,
+  },
+  heroStatusRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderRadius: 16,
-    padding: 4,
+    alignItems: 'center',
+  },
+  heroMetricsDock: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.06)',
   },
-  periodOption: {
+  heroDockItem: {
     flex: 1,
-    paddingVertical: 10,
+  },
+  heroDockLabel: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.5)',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  heroDockValue: {
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  heroDockSeparator: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    marginHorizontal: 10,
+  },
+
+  /* Signature 4 Circular Action Buttons (Cash App / Revolut Style) */
+  actionStripContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 24,
+    paddingHorizontal: 8,
+  },
+  actionCircleItem: {
+    alignItems: 'center',
+    width: 72,
+  },
+  actionCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
-  periodOptionActive: {
-    backgroundColor: 'rgba(184, 242, 92, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(184, 242, 92, 0.3)',
+  actionCircleLime: {
+    backgroundColor: '#B8F25C',
   },
-  periodOptionText: {
-    color: 'rgba(255,255,255,0.5)',
+  actionCircleRed: {
+    backgroundColor: 'rgba(255, 107, 107, 0.16)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 107, 107, 0.45)',
+  },
+  actionCircleBlue: {
+    backgroundColor: 'rgba(121, 192, 255, 0.16)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(121, 192, 255, 0.45)',
+  },
+  actionCircleAmber: {
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(245, 158, 11, 0.45)',
+  },
+  actionCircleLabel: {
+    fontSize: 12,
     fontWeight: '700',
-    fontSize: 13,
-  },
-  periodOptionTextActive: {
-    color: '#B8F25C',
-    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 8,
+    letterSpacing: -0.2,
   },
 
   /* Section Headers */
@@ -977,7 +921,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   sectionTitleRow: {
     flexDirection: 'row',
@@ -992,88 +936,162 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sectionTitle: { 
-    fontSize: 18, 
+    fontSize: 17, 
     fontWeight: '900', 
     color: '#FFFFFF', 
     letterSpacing: -0.4,
   },
-  sectionSubBadge: {
-    fontSize: 11,
+  sectionSubBadgeLink: {
+    fontSize: 12,
     fontWeight: '700',
-    color: 'rgba(255,255,255,0.4)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: '#B8F25C',
   },
 
-  /* Metric Cards Grid */
-  grid: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
-    justifyContent: 'space-between',
-    rowGap: 12,
-  },
-  cardWrapper: {
-    width: '48.2%',
-  },
-  metricCard: {
+  /* Activity Group Card (iOS Grouped Table Style) */
+  activityGroupCard: {
     borderRadius: 22,
-    padding: 16,
+    backgroundColor: 'rgba(20, 54, 40, 0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden',
+    marginBottom: 8,
   },
-  cardHeader: {
+  activityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
   },
-  iconBox: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
+  activityRowLast: {
+    borderBottomWidth: 0,
+  },
+  activityRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+    marginRight: 10,
+  },
+  activityIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardLabel: { 
-    fontSize: 13, 
-    fontWeight: '700', 
-    color: 'rgba(255,255,255,0.7)',
-    letterSpacing: -0.2,
+  activityRowTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
-  cardValue: { 
-    fontSize: 20, 
-    fontWeight: '900', 
-    color: '#FFFFFF', 
-    letterSpacing: -0.5,
-    marginBottom: 4,
-  },
-  cardSubtext: {
+  activityRowSub: {
     fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: 2,
+  },
+  activityRowRight: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  activityRowAmount: {
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  emptyActivityCard: {
+    backgroundColor: 'rgba(20, 54, 40, 0.4)',
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    gap: 4,
+    marginBottom: 8,
+  },
+  emptyActivityTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.7)',
+  },
+  emptyActivitySub: {
+    fontSize: 12,
     color: 'rgba(255,255,255,0.4)',
-    fontWeight: '500',
+    textAlign: 'center',
   },
 
-  /* Ask NNOO Banner */
-  askNnooBannerContainer: {
-    marginBottom: 16,
+  /* Store Vital Signs Card */
+  vitalSignsCard: {
+    borderRadius: 20,
+    backgroundColor: 'rgba(20, 54, 40, 0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden',
   },
-  askNnooBanner: {
-    borderRadius: 22,
-    padding: 18,
+  vitalGridRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  vitalGridCell: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  vitalHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  vitalCellLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.7)',
+  },
+  vitalCellValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  vitalCellSub: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.45)',
+  },
+  vitalGridDividerV: {
+    width: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  vitalGridDividerH: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+
+  /* AI Advisor Card */
+  aiAdvisorCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 242, 92, 0.22)',
+    marginBottom: 8,
+  },
+  aiAdvisorGradient: {
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: 'rgba(184, 242, 92, 0.25)',
   },
-  askNnooLeft: {
+  aiAdvisorLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     flex: 1,
     marginRight: 10,
   },
-  askNnooIconBox: {
+  aiAdvisorIconBox: {
     width: 44,
     height: 44,
     borderRadius: 14,
@@ -1081,15 +1099,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  askNnooTitleRow: {
+  aiAdvisorTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     marginBottom: 4,
   },
-  askNnooTitle: {
+  aiAdvisorTitle: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
   },
   aiPill: {
@@ -1106,31 +1124,9 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 0.5,
   },
-  askNnooSubtitle: {
+  aiAdvisorSubtitle: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
     lineHeight: 16,
-  },
-
-  /* Tool Cards */
-  toolCard: {
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    minHeight: 110,
-    justifyContent: 'space-between',
-  },
-  toolCardTitle: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-    marginTop: 8,
-    marginBottom: 2,
-  },
-  toolCardDesc: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: 11,
-    lineHeight: 14,
   },
 });

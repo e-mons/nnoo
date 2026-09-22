@@ -14,7 +14,6 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
-  isAdmin: boolean;
   isLoading: boolean;
   signOut: () => Promise<void>;
 };
@@ -23,7 +22,6 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   profile: null,
-  isAdmin: false,
   isLoading: true,
   signOut: async () => {},
 });
@@ -34,7 +32,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -61,16 +58,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setProfile(data);
       }
-
-      // Check if user is a platform admin
-      const { data: adminRecord } = await supabase
-        .from('platform_admins')
-        .select('status')
-        .eq('user_id', userId)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      setIsAdmin(!!adminRecord);
     } catch (e) {
       console.error('AuthContext: Exception fetching profile', e);
     }
@@ -113,7 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await fetchProfile(newSession.user.id);
         } else {
           setProfile(null);
-          setIsAdmin(false);
         }
 
         setIsLoading(false);
@@ -134,7 +120,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null);
       setUser(null);
       setProfile(null);
-      setIsAdmin(false);
     } catch (e) {
       console.error('AuthContext: Error signing out', e);
     }
@@ -147,7 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         user,
         profile,
-        isAdmin,
         isLoading,
         signOut,
       }}

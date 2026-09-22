@@ -55,3 +55,8 @@ backups/
 *.tar
 *.sql.bak
 *.pgdump
+# turbo
+.turbo/
+
+# local agent credentials
+.agents/mcp_config.json
