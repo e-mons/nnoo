@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import { Settings, CreditCard, Users, MessageSquare } from 'lucide-react';
+import { Settings, CreditCard, Users, MessageSquare, Clock, Bell } from 'lucide-react';
 import { requireRole } from '@/lib/auth/rbac';
 
 export default async function SettingsLayout({
@@ -16,10 +16,16 @@ export default async function SettingsLayout({
 
   const navItems = [
     {
-      name: 'General',
+      name: 'Store Details',
       href: `/app/${businessSlug}/settings`,
       icon: Settings,
       matchStart: false
+    },
+    {
+      name: 'Staff & Helpers',
+      href: `/app/${businessSlug}/settings/team`,
+      icon: Users,
+      matchStart: true
     },
     {
       name: 'WhatsApp Business',
@@ -28,15 +34,21 @@ export default async function SettingsLayout({
       matchStart: true
     },
     {
-      name: 'Billing & Plan',
+      name: 'Automations & Schedules',
+      href: `/app/${businessSlug}/settings/automations`,
+      icon: Clock,
+      matchStart: true
+    },
+    {
+      name: 'Plan & Billing',
       href: `/app/${businessSlug}/settings/billing`,
       icon: CreditCard,
       matchStart: true
     },
     {
-      name: 'Team',
-      href: `/app/${businessSlug}/settings/team`,
-      icon: Users,
+      name: 'Attention & Alerts',
+      href: `/app/${businessSlug}/settings/notifications`,
+      icon: Bell,
       matchStart: true
     }
   ];

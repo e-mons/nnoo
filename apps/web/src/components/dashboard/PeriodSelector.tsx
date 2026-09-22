@@ -13,7 +13,7 @@ export function PeriodSelector() {
     let start = '';
     let end = '';
 
-    // Very naive date math for demo purposes, assume Africa/Lagos
+    // Canonical period date boundary calculation in local ISO format (YYYY-MM-DD)
     if (period === 'this_month') {
       start = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
       end = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];

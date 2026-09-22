@@ -250,7 +250,7 @@ export function NotificationCenter({ businessId, businessSlug }: NotificationCen
   const formatTime = (isoString: string) => {
     try {
       const d = new Date(isoString);
-      return d.toLocaleDateString(undefined, {
+      return d.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -423,7 +423,7 @@ export function NotificationCenter({ businessId, businessSlug }: NotificationCen
                           <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-white/10 text-white/80">
                             {CATEGORY_META[n.notificationCategory]?.label || n.notificationCategory}
                           </span>
-                          <span className="text-xs text-white/40">{formatTime(n.createdAt)}</span>
+                          <span className="text-xs text-white/40" suppressHydrationWarning>{formatTime(n.createdAt)}</span>
                           {isUnread && (
                             <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-[#B8F25C] text-[#0A1C16]">
                               NEW

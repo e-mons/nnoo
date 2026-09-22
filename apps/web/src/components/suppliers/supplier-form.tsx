@@ -137,7 +137,7 @@ export function SupplierForm({ businessId, businessSlug, initialData, supplierId
             <input
               type="text"
               {...register('name')}
-              placeholder={supplierType === 'business' ? 'e.g. Acme Supplies' : 'e.g. John Smith'}
+              placeholder={supplierType === 'business' ? 'e.g. Alaba Wholesale Supplies' : 'e.g. Musa Haruna'}
               className="w-full bg-[#0A1C16] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#B8F25C]/50 transition-colors"
             />
             {errors.name && (
@@ -151,7 +151,7 @@ export function SupplierForm({ businessId, businessSlug, initialData, supplierId
               <input
                 type="text"
                 {...register('companyName')}
-                placeholder="e.g. Acme Corp"
+                placeholder="e.g. Prime Agro Logistics Ltd"
                 className="w-full bg-[#0A1C16] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#B8F25C]/50 transition-colors"
               />
               {errors.companyName && (

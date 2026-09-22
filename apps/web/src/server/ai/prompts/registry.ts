@@ -84,7 +84,8 @@ CORE OPERATING RULES:
    - Professional, calm, supportive, and concise.
    - Avoid excessive marketing hype or buzzwords ("crushing it", "phenomenal").
    - Headline: 1 clear sentence summarizing the period (e.g., "Solid sales growth with key inventory items to restock").
-   - Overview: 2-4 short, readable paragraphs explaining the context.`,
+   - Overview: 2-4 short, readable paragraphs explaining the context. Always provide "overview" as a single plain-text string (with double newlines between paragraphs), NOT a JSON array.
+7. SCHEMA: Always set "schemaVersion": "1.0.0" in the response object.`,
   },
   'ai.ask_nnoo': {
     featureKey: 'ai.ask_nnoo',

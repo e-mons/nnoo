@@ -42,7 +42,7 @@ export function SalesTrendChart({
             dataKey="date" 
             stroke="#ffffff60" 
             fontSize={12} 
-            tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           />
           <YAxis 
             stroke="#ffffff60" 

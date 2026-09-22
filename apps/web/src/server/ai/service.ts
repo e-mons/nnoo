@@ -51,7 +51,7 @@ export interface ExecuteAIFeatureOptions<TInput, TOutput> {
   context: AIInvocationContext;
   userInput?: string;
   verifiedContext?: TInput;
-  responseSchema: z.ZodType<TOutput>;
+  responseSchema: z.ZodType<TOutput, any, any>;
   jsonSchema?: Record<string, unknown>;
   geminiClient?: GeminiClientInterface;
 }
@@ -183,7 +183,27 @@ export class AIApplicationService {
       usageMeta = result.usage;
 
       // 9. Runtime Zod Schema Validation (External input must NEVER be trusted without validation)
-      const parseOutcome = options.responseSchema.safeParse(result.data);
+      let dataToValidate: unknown = result.data;
+      if (
+        dataToValidate &&
+        typeof dataToValidate === 'object' &&
+        !Array.isArray(dataToValidate)
+      ) {
+        const obj: Record<string, unknown> = { ...(dataToValidate as Record<string, unknown>) };
+        if (
+          featureDef.responseSchemaVersion &&
+          (typeof obj.schemaVersion !== 'string' || !obj.schemaVersion)
+        ) {
+          obj.schemaVersion = featureDef.responseSchemaVersion;
+        }
+
+        if (Array.isArray(obj.overview)) {
+          obj.overview = (obj.overview as unknown[]).filter(Boolean).join('\n\n');
+        }
+        dataToValidate = obj;
+      }
+
+      const parseOutcome = options.responseSchema.safeParse(dataToValidate);
       if (!parseOutcome.success) {
         console.error('[AI executeFeature] Schema validation FAILED.');
         console.error('[AI executeFeature] Raw Gemini data:', JSON.stringify(result.data, null, 2));

@@ -282,8 +282,8 @@ export function CreditPassportDashboard({
                   <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-semibold rounded-lg border border-emerald-500/20">
                     Version {activeSnapshot.passportVersion}
                   </span>
-                  <span className="text-xs text-white/40">
-                    Generated: {new Date(activeSnapshot.createdAt).toLocaleDateString()}
+                  <span className="text-xs text-white/40" suppressHydrationWarning>
+                    Generated: {new Date(activeSnapshot.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                   </span>
                 </>
               ) : (
@@ -482,8 +482,8 @@ export function CreditPassportDashboard({
               <TrendingUp className="w-4 h-4 text-[#B8F25C]" />
               <h3>Current Position</h3>
             </div>
-            <span className="text-[10px] text-white/40 italic">
-              Source: NNOO Operational Records (As of {new Date(currentPosition.asOf).toLocaleDateString()})
+            <span className="text-[10px] text-white/40 italic" suppressHydrationWarning>
+              Source: NNOO Operational Records (As of {new Date(currentPosition.asOf).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })})
             </span>
           </div>
 
@@ -724,7 +724,7 @@ export function CreditPassportDashboard({
                       className="p-2.5 bg-white/5 rounded-lg border border-white/5 flex items-center justify-between text-xs"
                     >
                       <div>
-                        <span className="text-white/80">Expires: {new Date(share.expiresAt).toLocaleDateString()}</span>
+                        <span className="text-white/80" suppressHydrationWarning>Expires: {new Date(share.expiresAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                         {share.isRevoked && <span className="ml-2 text-rose-400 font-semibold">[Revoked]</span>}
                         {share.isExpired && !share.isRevoked && <span className="ml-2 text-amber-400 font-semibold">[Expired]</span>}
                       </div>
@@ -774,8 +774,8 @@ export function CreditPassportDashboard({
                       <span className="font-bold text-white">Version {snap.passportVersion}</span>
                       <span className="text-xs text-white/40 font-mono">({snap.passportCode})</span>
                     </div>
-                    <p className="text-xs text-white/50 mt-1">
-                      Generated {new Date(snap.createdAt).toLocaleString()} • Period: {snap.periodStart} to {snap.periodEnd}
+                    <p className="text-xs text-white/50 mt-1" suppressHydrationWarning>
+                      Generated {new Date(snap.createdAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' })} • Period: {snap.periodStart} to {snap.periodEnd}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

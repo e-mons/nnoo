@@ -420,6 +420,69 @@ describe('Tranche 3 Prompt 4: Verified Business Summaries & Smart Insights', () 
     assert.deepStrictEqual(summary.selectedActionKeys, ['OPEN_SALES_REPORT', 'OPEN_OVERDUE_INVOICES']);
   });
 
+  // Test 8b: Resilient schemaVersion Auto-Defaulting
+  it('8b. Resilient schemaVersion: Gemini response omitting schemaVersion auto-injects default without error', async () => {
+    // Exact shape from Gemini production output that omitted schemaVersion
+    const mockClient = new MockGeminiClient(async () => ({
+      headline: 'Sales activity slowed down during this period compared to last month',
+      overview: 'Net sales and operating profit decreased during this timeframe.',
+      highlightSignalKeys: ['INVENTORY_POSITION'],
+      attentionSignalKeys: ['NET_SALES_CHANGE', 'OVERDUE_INVOICES_PRESENT'],
+      actionKeys: ['OPEN_SALES_REPORT', 'OPEN_OVERDUE_INVOICES'],
+    }));
+
+    const supabase = createMockSupabase();
+    const summary = await AIBusinessInsightService.generateSummary({
+      supabase,
+      businessId,
+      userId,
+      userRole: 'owner',
+      summaryType: 'this_month',
+      idempotencyKey: 'resilient-summary-key-1',
+      geminiClient: mockClient,
+    });
+
+    assert.strictEqual(summary.status, 'ready');
+    assert.strictEqual(summary.headline, 'Sales activity slowed down during this period compared to last month');
+    assert.deepStrictEqual(summary.selectedHighlightSignalKeys, ['INVENTORY_POSITION']);
+    assert.deepStrictEqual(summary.selectedActionKeys, ['OPEN_SALES_REPORT', 'OPEN_OVERDUE_INVOICES']);
+  });
+
+  // Test 8c: Resilient Array Overview Auto-Joining
+  it('8c. Resilient Overview: Gemini response returning overview as string array is auto-joined and validates cleanly', async () => {
+    // Exact shape from Gemini production output where overview was an array of paragraphs
+    const mockClient = new MockGeminiClient(async () => ({
+      schemaVersion: '1.0.0',
+      headline: 'Sales activity softened during this period, while outstanding customer balances require operational attention.',
+      overview: [
+        'Sales activity and overall transaction volume decreased compared to the previous period.',
+        'Correspondingly, operating expenses remained significantly lower alongside the reduction in sales.',
+        'Attention is recommended toward managing outstanding customer receivables.',
+      ],
+      highlightSignalKeys: ['NET_SALES_CHANGE', 'GROSS_PROFIT_CHANGE'],
+      attentionSignalKeys: ['OVERDUE_INVOICES_PRESENT', 'OUTSTANDING_RECEIVABLES'],
+      actionKeys: ['OPEN_SALES_REPORT', 'OPEN_RECEIVABLES', 'OPEN_OVERDUE_INVOICES'],
+    }));
+
+    const supabase = createMockSupabase();
+    const summary = await AIBusinessInsightService.generateSummary({
+      supabase,
+      businessId,
+      userId,
+      userRole: 'owner',
+      summaryType: 'this_month',
+      idempotencyKey: 'array-overview-summary-key-1',
+      geminiClient: mockClient,
+    });
+
+    assert.strictEqual(summary.status, 'ready');
+    assert.strictEqual(typeof summary.overview, 'string');
+    assert.ok(summary.overview.includes('Sales activity and overall transaction volume decreased'));
+    assert.ok(summary.overview.includes('\n\n'));
+    assert.deepStrictEqual(summary.selectedHighlightSignalKeys, ['NET_SALES_CHANGE', 'GROSS_PROFIT_CHANGE']);
+    assert.deepStrictEqual(summary.selectedActionKeys, ['OPEN_SALES_REPORT', 'OPEN_RECEIVABLES', 'OPEN_OVERDUE_INVOICES']);
+  });
+
   // Test 9: Unknown Signal Key Rejection
   it('9. Signal Key Allowlist: Fabricated or unknown signal key from model is rejected with AI_INSIGHTS_INVALID_RESULT', async () => {
     const mockClient = new MockGeminiClient(async () => ({

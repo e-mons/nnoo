@@ -164,12 +164,18 @@ export class WhatsAppProviderAdapter {
     const fetchImpl = this.customFetch || globalThis.fetch;
 
     if (!this.config.accessToken || !this.config.phoneNumberId) {
-      // In development or test environments where credentials aren't live
-      const mockId = `wamid.mock_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-      return {
-        providerMessageId: mockId,
-        status: 'sent',
-      };
+      if (process.env.NODE_ENV === 'test') {
+        const testId = `wamid.test_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+        return {
+          providerMessageId: testId,
+          status: 'sent',
+        };
+      }
+      throw new AISafeError(
+        'AI_PROVIDER_UNAVAILABLE',
+        'Meta WhatsApp Business API credentials (WHATSAPP_ACCESS_TOKEN or WHATSAPP_PHONE_NUMBER_ID) are not configured in this environment.',
+        false
+      );
     }
 
     const url = `${this.config.baseUrl}/messages`;

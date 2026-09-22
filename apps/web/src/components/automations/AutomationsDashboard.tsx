@@ -657,8 +657,8 @@ export function AutomationsDashboard({
                       )}
                     </p>
 
-                    <div className="text-[10px] text-neutral-400 pt-1">
-                      First detected: {new Date(evt.firstDetectedAt).toLocaleDateString()}
+                    <div className="text-[10px] text-neutral-400 pt-1" suppressHydrationWarning>
+                      First detected: {new Date(evt.firstDetectedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                     </div>
                   </div>
                 </div>
@@ -722,8 +722,8 @@ export function AutomationsDashboard({
                           {run.status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-neutral-400">
-                        {new Date(run.startedAt).toLocaleString()}
+                      <td className="py-3 px-3 text-neutral-400" suppressHydrationWarning>
+                        {new Date(run.startedAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' })}
                       </td>
                       <td className="py-3 px-3 text-neutral-300">
                         {run.resultType ? (

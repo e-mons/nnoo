@@ -574,8 +574,8 @@ export function HealthScoreDashboard({
                     className="bg-white/5 border border-white/5 rounded-xl p-4 flex items-center justify-between"
                   >
                     <div>
-                      <span className="text-xs text-gray-400 block">
-                        {new Date(snap.createdAt).toLocaleDateString(undefined, {
+                      <span className="text-xs text-gray-400 block" suppressHydrationWarning>
+                        {new Date(snap.createdAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',

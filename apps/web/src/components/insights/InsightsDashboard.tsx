@@ -414,8 +414,8 @@ export function InsightsDashboard({
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#B8F25C]" />
               Current Balance & Position
-              <span className="text-xs text-white/40 font-normal">
-                (As of {new Date(pos.asOfTimestamp).toLocaleDateString()})
+              <span className="text-xs text-white/40 font-normal" suppressHydrationWarning>
+                (As of {new Date(pos.asOfTimestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })})
               </span>
             </h2>
             <span className="text-xs text-white/50">Point-in-Time Balances</span>
@@ -693,8 +693,8 @@ export function InsightsDashboard({
                         <span className="text-xs font-semibold text-[#B8F25C] uppercase tracking-wider">
                           {item.summaryType} ({item.periodStart} to {item.periodEnd})
                         </span>
-                        <span className="text-[11px] text-white/40">
-                          {new Date(item.createdAt).toLocaleString()}
+                        <span className="text-[11px] text-white/40" suppressHydrationWarning>
+                          {new Date(item.createdAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' })}
                         </span>
                       </div>
                       <div className="text-sm font-medium text-white">{item.headline}</div>

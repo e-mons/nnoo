@@ -58,21 +58,27 @@ export default async function BusinessDashboardPage({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href={`/app/${businessSlug}/credit-passport`}
+            href={`/app/${businessSlug}/money`}
+            className="px-3.5 py-2 bg-[#B8F25C] hover:bg-[#A3D94E] text-[#0A1C16] rounded-xl text-xs font-bold transition shadow-sm"
+          >
+            💰 Money Hub
+          </Link>
+          <Link
+            href={`/app/${businessSlug}/advisor?tab=passport`}
             className="px-3.5 py-2 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-semibold flex items-center gap-2 transition"
           >
             <FileBadge className="w-3.5 h-3.5" />
             Credit Passport
           </Link>
           <Link
-            href={`/app/${businessSlug}/health`}
+            href={`/app/${businessSlug}/advisor?tab=health`}
             className="px-3.5 py-2 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center gap-2 transition"
           >
             <Activity className="w-3.5 h-3.5" />
             Business Health
           </Link>
           <Link
-            href={`/app/${businessSlug}/insights`}
+            href={`/app/${businessSlug}/advisor?tab=insights`}
             className="px-3.5 py-2 bg-[#B8F25C]/15 hover:bg-[#B8F25C]/25 text-[#B8F25C] border border-[#B8F25C]/30 rounded-xl text-xs font-semibold flex items-center gap-2 transition"
           >
             <Sparkles className="w-3.5 h-3.5" />

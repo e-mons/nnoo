@@ -142,7 +142,7 @@ export function CustomerForm({ businessId, businessSlug, initialData, customerId
             <input
               type="text"
               {...register('name')}
-              placeholder={customerType === 'business' ? 'e.g. Jane Doe' : 'e.g. John Smith'}
+              placeholder={customerType === 'business' ? 'e.g. Amaka Okafor' : 'e.g. Ibrahim Musa'}
               className="w-full bg-[#0A1C16] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#B8F25C]/50 transition-colors"
             />
             {errors.name && (
@@ -156,7 +156,7 @@ export function CustomerForm({ businessId, businessSlug, initialData, customerId
               <input
                 type="text"
                 {...register('companyName')}
-                placeholder="e.g. Acme Corp"
+                placeholder="e.g. Apex Global Ventures Ltd"
                 className="w-full bg-[#0A1C16] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#B8F25C]/50 transition-colors"
               />
               {errors.companyName && (
