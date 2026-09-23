@@ -37,10 +37,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: summary,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorObj = err as { code?: string; message?: string };
+    const statusCode = errorObj.code === 'ASK_NNOO_FORBIDDEN' ? 403 : 500;
     return NextResponse.json(
-      { success: false, error: { code: 'WHATSAPP_PROVIDER_ERROR', message: err?.message || 'Failed to fetch connection summary' } },
-      { status: 500 }
+      { success: false, error: { code: errorObj.code || 'WHATSAPP_PROVIDER_ERROR', message: errorObj.message || 'Failed to fetch connection summary' } },
+      { status: statusCode }
     );
   }
 }
@@ -80,10 +82,12 @@ export async function POST(request: NextRequest) {
       success: true,
       data: linkResult,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorObj = err as { code?: string; message?: string };
+    const statusCode = errorObj.code === 'ASK_NNOO_FORBIDDEN' ? 403 : 500;
     return NextResponse.json(
-      { success: false, error: { code: 'WHATSAPP_PROVIDER_ERROR', message: err?.message || 'Failed to generate link code' } },
-      { status: 500 }
+      { success: false, error: { code: errorObj.code || 'WHATSAPP_PROVIDER_ERROR', message: errorObj.message || 'Failed to generate link code' } },
+      { status: statusCode }
     );
   }
 }

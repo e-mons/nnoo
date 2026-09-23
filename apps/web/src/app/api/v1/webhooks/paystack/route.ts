@@ -19,13 +19,21 @@ export async function POST(req: NextRequest) {
 
     const rawBody = await req.text();
     
-    // Verify HMAC SHA512 signature
+    if (!PAYSTACK_SECRET_KEY) {
+      console.error('PAYSTACK_SECRET_KEY is not configured on this server');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
+
+    // Verify HMAC SHA512 signature in constant time
     const hash = crypto
       .createHmac('sha512', PAYSTACK_SECRET_KEY)
       .update(rawBody)
       .digest('hex');
 
-    if (hash !== signature) {
+    const expectedBuffer = Buffer.from(hash, 'hex');
+    const actualBuffer = Buffer.from(signature, 'hex');
+
+    if (expectedBuffer.length !== actualBuffer.length || !crypto.timingSafeEqual(expectedBuffer, actualBuffer)) {
       console.error('Paystack webhook signature mismatch');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }

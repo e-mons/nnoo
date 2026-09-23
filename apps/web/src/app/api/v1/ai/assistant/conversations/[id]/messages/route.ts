@@ -49,10 +49,11 @@ export async function POST(
     // Verify membership
     const { data: membership } = await supabase
       .from('business_memberships')
-      .select('role')
+      .select('role, membership_status')
       .eq('business_id', businessId)
       .eq('user_id', user.id)
-      .single();
+      .eq('membership_status', 'active')
+      .maybeSingle();
 
     if (!membership) {
       return NextResponse.json(
@@ -60,7 +61,7 @@ export async function POST(
           success: false,
           error: {
             code: 'ASK_NNOO_FORBIDDEN',
-            message: 'User does not belong to the specified business.',
+            message: 'User does not belong to the specified business or membership is inactive.',
             retryable: false,
           },
         },

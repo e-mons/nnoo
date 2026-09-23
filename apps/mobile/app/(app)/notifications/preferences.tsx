@@ -63,8 +63,8 @@ export default function NotificationPreferencesScreen() {
         .eq('user_id', user.id);
 
       setPrefs(data || []);
-    } catch {
-      // Silent fail
+    } catch (err: unknown) {
+      console.error('[NotificationPreferences] Failed to load preferences:', err);
     } finally {
       setLoading(false);
     }

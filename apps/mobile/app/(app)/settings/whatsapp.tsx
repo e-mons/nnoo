@@ -55,7 +55,8 @@ export default function WhatsAppSettingsScreen() {
         businessId: activeBusiness.id,
       });
       setStatus(data);
-    } catch {
+    } catch (err: unknown) {
+      console.warn('[WhatsAppSettings] Failed to fetch WhatsApp status:', err);
       setStatus({ isConnected: false, maskedPhone: null, status: 'NOT_CONNECTED' });
     } finally {
       setLoading(false);
@@ -115,8 +116,8 @@ export default function WhatsAppSettingsScreen() {
       await Share.share({
         message: `NNOO WhatsApp Linking Code: ${linkingCode}. Send this code to NNOO on WhatsApp to connect your account.`,
       });
-    } catch {
-      // Ignored
+    } catch (err: unknown) {
+      console.debug('[WhatsAppSettings] Share action was cancelled or failed:', err);
     }
   };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createAdminClient } from '../../lib/supabase/admin';
 import { requireServerAdmin } from '@/lib/auth/admin-guard';
-import { Users, Briefcase, Activity, ShieldAlert, CreditCard, MessageSquare, Cpu, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Users, Briefcase, Activity, CreditCard, MessageSquare, Cpu, ArrowRight, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {

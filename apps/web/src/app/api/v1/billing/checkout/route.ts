@@ -80,6 +80,14 @@ export async function POST(request: NextRequest) {
     // 5. Generate Reference
     const reference = `sub_${parsed.data.businessId.replace(/-/g, '').substring(0, 8)}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+    if (!PAYSTACK_SECRET_KEY) {
+      console.error('PAYSTACK_SECRET_KEY is not configured');
+      return NextResponse.json(
+        { error: 'Payment gateway is not configured on this server' },
+        { status: 500 }
+      );
+    }
+
     // 6. Initialize Paystack Transaction
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',

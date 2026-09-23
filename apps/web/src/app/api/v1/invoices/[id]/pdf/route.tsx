@@ -13,6 +13,15 @@ export async function GET(
   
   const supabase = await createClient();
 
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { data: invoice, error } = await supabase
     .from('invoices')
     .select(`
@@ -24,6 +33,18 @@ export async function GET(
 
   if (error || !invoice) {
     return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+  }
+
+  const { data: membership, error: memError } = await supabase
+    .from('business_memberships')
+    .select('role')
+    .eq('business_id', invoice.business_id)
+    .eq('user_id', user.id)
+    .eq('membership_status', 'active')
+    .maybeSingle();
+
+  if (memError || !membership) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   try {

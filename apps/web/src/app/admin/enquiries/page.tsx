@@ -2,7 +2,7 @@ import React from 'react';
 import { createAdminClient } from '../../../lib/supabase/admin';
 import { requireServerAdmin } from '@/lib/auth/admin-guard';
 import Link from 'next/link';
-import { MessageSquare, ChevronRight, Search, Filter } from 'lucide-react';
+import { MessageSquare, ChevronRight } from 'lucide-react';
 
 export const metadata = {
   title: 'Enquiries & Leads - NNOO Admin',

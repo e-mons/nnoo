@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import { ShieldCheck, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import AcceptInviteForm from './AcceptInviteForm';

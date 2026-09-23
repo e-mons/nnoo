@@ -53,14 +53,23 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
-  const body: ApiResponse<T> = await response.json();
-
-  if (!body.success || !response.ok) {
+  let body: ApiResponse<T>;
+  try {
+    body = await response.json();
+  } catch (_parseError) {
     throw new ApiError(
-      body.error?.code || 'UNKNOWN_ERROR',
-      body.error?.message || `Request failed with status ${response.status}`,
+      'INVALID_SERVER_RESPONSE',
+      `Server returned an invalid response (HTTP ${response.status})`,
+      response.status
+    );
+  }
+
+  if (!body || !body.success || !response.ok) {
+    throw new ApiError(
+      body?.error?.code || 'UNKNOWN_ERROR',
+      body?.error?.message || `Request failed with status ${response.status}`,
       response.status,
-      body.error?.details
+      body?.error?.details
     );
   }
 

@@ -40,6 +40,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (!PAYSTACK_SECRET_KEY) {
+      console.error('PAYSTACK_SECRET_KEY is not configured');
+      return NextResponse.json(
+        { error: 'Payment gateway is not configured on this server' },
+        { status: 500 }
+      );
+    }
+
     // 3. Verify with Paystack API
     const response = await fetch(
       `https://api.paystack.co/transaction/verify/${parsed.data.reference}`,

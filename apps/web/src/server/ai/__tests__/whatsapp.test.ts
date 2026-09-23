@@ -269,6 +269,22 @@ describe('Tranche 3 Prompt 10: Production NNOO WhatsApp Business Integration', (
       assert.equal(requests[0].consumed_at, null);
     });
 
+    it('STRICT INVARIANT: rejects link request creation for user without active membership', async () => {
+      await assert.rejects(
+        async () => {
+          await WhatsAppLinkingService.createLinkRequest(
+            mockSupabase as any,
+            'biz-unauthorized',
+            'user-001'
+          );
+        },
+        (err: any) => {
+          assert.equal(err.code, 'ASK_NNOO_FORBIDDEN');
+          return true;
+        }
+      );
+    });
+
     it('verifies link code, marks request consumed, and establishes active connection', async () => {
       const link = await WhatsAppLinkingService.createLinkRequest(
         mockSupabase as any,

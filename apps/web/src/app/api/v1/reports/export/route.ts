@@ -14,15 +14,26 @@ export async function GET(req: NextRequest) {
 
   const supabase = await createClient();
 
-  // Validate business membership (RLS protects queries, but good to check explicit access)
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return new NextResponse('Unauthorized', { status: 401 });
+  }
+
+  // Validate business membership (RLS protects queries, and explicit server-side access check)
   const { data: membership, error: memError } = await supabase
     .from('business_memberships')
     .select('role')
     .eq('business_id', businessId)
-    .single();
+    .eq('user_id', user.id)
+    .eq('membership_status', 'active')
+    .maybeSingle();
 
   if (memError || !membership) {
-    return new NextResponse('Unauthorized', { status: 403 });
+    return new NextResponse('Forbidden', { status: 403 });
   }
 
   let csvRows: string[] = [];

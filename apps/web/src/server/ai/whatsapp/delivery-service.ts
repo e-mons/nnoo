@@ -1,6 +1,6 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { BusinessNotification, WhatsAppDeliverySummary } from '@nnoo/contracts';
+import type { BusinessNotification } from '@nnoo/contracts';
 import { WhatsAppProviderAdapter } from './adapter';
 import { WHATSAPP_TEMPLATE_REGISTRY } from './template-registry';
 import { AISafeError } from '../service';

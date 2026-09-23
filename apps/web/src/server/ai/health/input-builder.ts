@@ -46,8 +46,7 @@ export class HealthScoreInputBuilder {
     const asOfTimestamp = new Date().toISOString();
 
     // 3. Fetch canonical performance, position, and business registration date concurrently
-    // 3. Fetch canonical performance, position, and business registration date concurrently
-    const [perfRes, posRes, bizRes, oldestSaleRes, oldestExpenseRes] = await Promise.all([
+    const [perfRes, posRes, bizRes] = await Promise.all([
       supabase.rpc('get_dashboard_performance_metrics', {
         p_business_id: businessId,
         p_start_date: evaluationPeriod.start,
@@ -60,20 +59,6 @@ export class HealthScoreInputBuilder {
         .from('businesses')
         .select('id, created_at, status')
         .eq('id', businessId)
-        .maybeSingle(),
-      supabase
-        .from('sales')
-        .select('effective_date')
-        .eq('business_id', businessId)
-        .order('effective_date', { ascending: true })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from('expenses')
-        .select('effective_date')
-        .eq('business_id', businessId)
-        .order('effective_date', { ascending: true })
-        .limit(1)
         .maybeSingle(),
     ]);
 

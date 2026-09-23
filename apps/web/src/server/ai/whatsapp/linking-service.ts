@@ -19,6 +19,19 @@ export class WhatsAppLinkingService {
     businessId: string,
     userId: string
   ): Promise<CreateWhatsAppLinkResult> {
+    // 0. Verify active business membership to prevent IDOR / cross-tenant link creation
+    const { data: membership } = await supabase
+      .from('business_memberships')
+      .select('role')
+      .eq('business_id', businessId)
+      .eq('user_id', userId)
+      .eq('membership_status', 'active')
+      .maybeSingle();
+
+    if (!membership) {
+      throw new AISafeError('ASK_NNOO_FORBIDDEN', 'Active business membership is required to link WhatsApp.', false);
+    }
+
     // Generate random 6-character alphanumeric code
     const randomHex = crypto.randomBytes(3).toString('hex').toUpperCase(); // 6 chars
     const codeDisplay = `NNOO-${randomHex}`;
@@ -70,6 +83,19 @@ export class WhatsAppLinkingService {
     businessId: string,
     userId: string
   ): Promise<WhatsAppConnectionSummary> {
+    // 0. Verify active membership in this business
+    const { data: currentMembership } = await supabase
+      .from('business_memberships')
+      .select('role')
+      .eq('business_id', businessId)
+      .eq('user_id', userId)
+      .eq('membership_status', 'active')
+      .maybeSingle();
+
+    if (!currentMembership) {
+      throw new AISafeError('ASK_NNOO_FORBIDDEN', 'Active business membership is required.', false);
+    }
+
     // 1. Fetch connection for this business
     const { data: conn } = await supabase
       .from('whatsapp_connections')

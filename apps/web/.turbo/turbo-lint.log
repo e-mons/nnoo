@@ -1,11 +1,5 @@
 $ eslint
 
-C:\Users\H-P\Desktop\nnoo\apps\web\src\app\(auth)\invitations\[token]\page.tsx
-  2:10  warning  'redirect' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-
-C:\Users\H-P\Desktop\nnoo\apps\web\src\app\admin\audit\page.tsx
-  5:41  warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\admin\billing\page.tsx
   122:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
@@ -26,13 +20,10 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\app\admin\enquiries\[id]\page.tsx
   126:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\admin\enquiries\page.tsx
-    5:39  warning  'Search' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-    5:47  warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-  103:41  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  103:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\admin\page.tsx
-    4:38  warning  'ShieldAlert' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-  269:44  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  269:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\admin\intelligence\ai-operations\route.ts
   20:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -176,13 +167,10 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\ai\whatsapp\disconnect\route.t
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\ai\whatsapp\link\route.ts
   34:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  40:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  77:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  83:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  79:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\ai\whatsapp\status\route.ts
   35:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  41:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\ai\whatsapp\switch-business\route.ts
   34:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -193,10 +181,10 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\ai\whatsapp\test-message\route
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\billing\checkout\route.ts
    62:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  142:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\billing\verify\route.ts
-  148:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  156:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\credit-passport\share\[token]\route.ts
   22:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -205,15 +193,15 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\credit-passport\verify\route.t
   37:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\reports\export\route.ts
-  28:7  warning  'csvRows' is never reassigned. Use 'const' instead  prefer-const
+  39:7  warning  'csvRows' is never reassigned. Use 'const' instead  prefer-const
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\webhooks\paystack\route.ts
-   43:41  warning  'existingError' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-   95:28  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
-  114:47  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
-  154:42  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
-  212:42  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
-  224:48  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+   51:41  warning  'existingError' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  103:28  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  122:47  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  162:42  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  220:42  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  232:48  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\app\api\v1\webhooks\whatsapp\route.ts
    46:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -758,6 +746,24 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\lib\actions\sales.ts
 C:\Users\H-P\Desktop\nnoo\apps\web\src\lib\auth\admin-guard.ts
   4:10  warning  'createAdminClient' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
 
+C:\Users\H-P\Desktop\nnoo\apps\web\src\lib\pdf\react-pdf-wrapper.ts
+   9:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   9:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\admin\ai-operations-service.ts
   155:35  warning  Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
   162:9   warning  'totalInvocations' is never reassigned. Use 'const' instead  prefer-const
@@ -976,18 +982,13 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\health\health-service.ts
   336:52  warning  Unexpected any. Specify a different type                                                 @typescript-eslint/no-explicit-any
   357:52  warning  Unexpected any. Specify a different type                                                 @typescript-eslint/no-explicit-any
 
-C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\health\input-builder.ts
-  50:37  warning  'oldestSaleRes' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
-  50:52  warning  'oldestExpenseRes' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\insights\insight-service.ts
   313:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\notifications\notification-service.ts
-   18:3   warning  'NotificationPolicy' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-  285:49  warning  Unexpected any. Specify a different type                                              @typescript-eslint/no-explicit-any
-  482:37  warning  Unexpected any. Specify a different type                                              @typescript-eslint/no-explicit-any
-  483:37  warning  Unexpected any. Specify a different type                                              @typescript-eslint/no-explicit-any
+  284:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  481:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  482:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\observability\logger.ts
   39:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -1003,14 +1004,13 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\whatsapp\command-router.ts
   110:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\whatsapp\delivery-service.ts
-    3:37  warning  'WhatsAppDeliverySummary' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-  196:19  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  196:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\whatsapp\linking-service.ts
-  104:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  116:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  243:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  330:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  130:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  269:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  356:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\H-P\Desktop\nnoo\apps\web\src\server\ai\whatsapp\message-handler.ts
   220:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -1032,6 +1032,6 @@ C:\Users\H-P\Desktop\nnoo\apps\web\src\server\inngest\functions\summary.ts
   14:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   14:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-✖ 518 problems (0 errors, 518 warnings)
+✖ 522 problems (0 errors, 522 warnings)
   0 errors and 4 warnings potentially fixable with the `--fix` option.
 

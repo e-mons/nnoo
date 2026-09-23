@@ -44,11 +44,13 @@ export default function NotificationCenterScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const fetchNotifications = useCallback(async () => {
     if (!activeBusiness || !user) return;
     try {
-      const { data, error } = await supabase
+      setErrorMessage(null);
+      const { data, error: dbError } = await supabase
         .from('business_notifications')
         .select('id, notification_category, notification_type, title, body, primary_action_key, created_at, read_at, resolved_at')
         .eq('business_id', activeBusiness.id)
@@ -56,12 +58,13 @@ export default function NotificationCenterScreen() {
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (dbError) throw dbError;
       const items = data || [];
       setNotifications(items);
       setUnreadCount(items.filter((n) => !n.read_at).length);
-    } catch {
-      // Silent fail — show empty state
+    } catch (err: unknown) {
+      console.error('[Notifications] Failed to fetch notifications:', err);
+      setErrorMessage('Unable to load notifications. Pull down to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -154,8 +157,10 @@ export default function NotificationCenterScreen() {
           </View>
         ) : notifications.length === 0 ? (
           <View style={styles.center}>
-            <Feather name="bell-off" size={48} color="rgba(255,255,255,0.3)" />
-            <Text style={styles.emptyText}>No notifications</Text>
+            <Feather name={errorMessage ? "alert-circle" : "bell-off"} size={48} color={errorMessage ? "#F87171" : "rgba(255,255,255,0.3)"} />
+            <Text style={[styles.emptyText, errorMessage ? { color: '#FCA5A5' } : null]}>
+              {errorMessage || 'No notifications'}
+            </Text>
           </View>
         ) : (
           <FlatList

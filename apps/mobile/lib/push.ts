@@ -210,7 +210,9 @@ export const MobilePushManager = {
     AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
         const Notifications = getNotifications();
-        Notifications?.setBadgeCountAsync(0).catch(() => {});
+        Notifications?.setBadgeCountAsync(0).catch((err) => {
+          console.warn('[PushManager] Failed to reset badge count:', err);
+        });
       }
     });
   },

@@ -2,7 +2,7 @@
 import React from 'react';
 import { createAdminClient } from '../../../lib/supabase/admin';
 import { requireServerAdmin } from '@/lib/auth/admin-guard';
-import { ShieldCheck, Activity, Search, Filter, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Activity, Search, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {

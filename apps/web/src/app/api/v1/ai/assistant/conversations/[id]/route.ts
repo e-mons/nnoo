@@ -49,10 +49,11 @@ export async function GET(
     // Verify membership
     const { data: membership } = await supabase
       .from('business_memberships')
-      .select('role')
+      .select('role, membership_status')
       .eq('business_id', businessId)
       .eq('user_id', user.id)
-      .single();
+      .eq('membership_status', 'active')
+      .maybeSingle();
 
     if (!membership) {
       return NextResponse.json(
@@ -60,7 +61,7 @@ export async function GET(
           success: false,
           error: {
             code: 'ASK_NNOO_FORBIDDEN',
-            message: 'User does not belong to the specified business.',
+            message: 'User does not belong to the specified business or membership is inactive.',
             retryable: false,
           },
         },
@@ -82,19 +83,16 @@ export async function GET(
     });
   } catch (err: unknown) {
     const errorObj = err as { code?: string; message?: string; retryable?: boolean };
-    const code = errorObj.code || 'AI_INTERNAL_ERROR';
-    const status = code.includes('NOT_FOUND') ? 404 : code.includes('FORBIDDEN') ? 403 : 400;
-
     return NextResponse.json(
       {
         success: false,
         error: {
-          code,
-          message: errorObj.message || 'Failed to retrieve conversation.',
+          code: errorObj.code || 'AI_INTERNAL_ERROR',
+          message: errorObj.message || 'Failed to fetch conversation details.',
           retryable: false,
         },
       },
-      { status }
+      { status: errorObj.code === 'ASK_NNOO_FORBIDDEN' ? 403 : errorObj.code === 'ASK_NNOO_NOT_FOUND' ? 404 : 500 }
     );
   }
 }
@@ -139,6 +137,29 @@ export async function DELETE(
           },
         },
         { status: 400 }
+      );
+    }
+
+    // Verify active membership before archiving
+    const { data: membership } = await supabase
+      .from('business_memberships')
+      .select('role')
+      .eq('business_id', businessId)
+      .eq('user_id', user.id)
+      .eq('membership_status', 'active')
+      .maybeSingle();
+
+    if (!membership) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'ASK_NNOO_FORBIDDEN',
+            message: 'User does not belong to the specified business or membership is inactive.',
+            retryable: false,
+          },
+        },
+        { status: 403 }
       );
     }
 

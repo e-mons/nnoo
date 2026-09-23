@@ -15,7 +15,6 @@ import {
 import { hasPermission, FeatureModule } from '@/lib/auth/rbac-client';
 import {
   NOTIFICATION_POLICY_REGISTRY,
-  NotificationPolicy,
   CATEGORY_FEATURE_MAP,
 } from './policy-registry';
 import { RecipientResolverService } from './recipient-resolver';
