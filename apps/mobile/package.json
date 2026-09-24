@@ -35,13 +35,16 @@
     "react-native-web": "~0.21.2"
   },
   "devDependencies": {
+    "@expo/ngrok": "^4.1.3",
     "@react-native/debugger-frontend": "^0.87.0",
     "@types/react": "~19.2.4",
     "typescript": "~5.9.3"
   },
   "expo": {
     "install": {
-      "exclude": ["typescript"]
+      "exclude": [
+        "typescript"
+      ]
     }
   },
   "scripts": {

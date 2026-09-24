@@ -114,14 +114,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // Revoke push device token before clearing session
-      await MobilePushManager.revokeOnSignOut().catch(() => {});
+      // Revoke push device token in the background so it doesn't block UI
+      MobilePushManager.revokeOnSignOut().catch(() => {});
+      
+      // Attempt server signout (has a built-in timeout in the client)
       await supabase.auth.signOut();
+    } catch (e) {
+      console.error('AuthContext: Error signing out', e);
+    } finally {
+      // Guarantee local state clears instantly regardless of network
       setSession(null);
       setUser(null);
       setProfile(null);
-    } catch (e) {
-      console.error('AuthContext: Error signing out', e);
     }
   };
 
